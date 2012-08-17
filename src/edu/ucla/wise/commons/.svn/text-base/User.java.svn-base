@@ -1,0 +1,479 @@
+package edu.ucla.wise.commons;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import org.apache.log4j.Logger;
+
+/**
+ * The User object takes actions and retains data for a specific user session
+ * User_DB_Connection is User's interface to Data_Bank (encapsulates
+ * user-specific AND database-specific calls)
+ */
+
+public class User {
+
+	// mandatory fields
+	public enum INVITEE_FIELDS {
+		id(null, false), firstname(null, true), lastname(null, true), salutation(
+				null, true), email(null, true), phone(null, false), irb_id(null,
+				false), field("columnName", false), textField("columnName",
+				false), codedField("columnName", false); // optional
+
+		private String attributeName;
+		private boolean shouldDisplay;
+
+		private INVITEE_FIELDS(String attrib, boolean disp) {
+			attributeName = attrib;
+			shouldDisplay = disp;
+		}
+
+		public String getAttributeName() {
+			return this.attributeName;
+		}
+		
+		public boolean isShouldDisplay(){
+			return shouldDisplay;
+		}
+
+		public static boolean contains(String columnName) {
+			for (INVITEE_FIELDS column : INVITEE_FIELDS.values()) {
+				if (column.name().equalsIgnoreCase(columnName))
+					return true;
+			}
+			return false;
+		}
+	};
+
+	private static String[] reqInviteeFields = {
+			INVITEE_FIELDS.firstname.name(), INVITEE_FIELDS.lastname.name(),
+			INVITEE_FIELDS.salutation.name(), INVITEE_FIELDS.email.name(),
+			INVITEE_FIELDS.irb_id.name() };
+
+	/** Instance Variables */
+	public String id;
+	public String email;
+	public String first_name;
+	public String last_name;
+	public String salutation;
+	public String irb_id;
+
+	public String user_session;
+	private String messageID;
+
+	public Survey currentSurvey;
+	public Page currentPage;
+
+	private Hashtable allAnswers = new Hashtable();
+	private User_DB_Connection myDataBank;
+
+	// private String currentState;
+
+	public User_DB_Connection getMyDataBank() {
+		return myDataBank;
+	}
+
+	private boolean completedSurvey = false;
+	Logger log = Logger.getLogger(User.class);
+
+	public User(String myID, Survey survey, String msg_id, Data_Bank db) {
+		// save the email's message ID as the user's survey message ID
+		try {
+			id = myID;
+			// get the survey searching by survey ID
+			currentSurvey = survey;
+			messageID = msg_id;
+			myDataBank = new User_DB_Connection(this, db);
+
+			// retrieve & fill in required invitee values
+			String[] inviteeAttrs = myDataBank
+					.getInviteeAttrs(User.reqInviteeFields);
+			first_name = inviteeAttrs[0];
+			last_name = inviteeAttrs[1];
+			salutation = inviteeAttrs[2];
+			email = inviteeAttrs[3];
+			irb_id = inviteeAttrs[4];
+			if (irb_id == null)
+				irb_id = "";
+
+			// retrieve & cache values that will be referenced by survey
+			if (currentSurvey.invitee_fields != null
+					&& currentSurvey.invitee_fields.length > 0) {
+				inviteeAttrs = myDataBank
+						.getInviteeAttrs(currentSurvey.invitee_fields);
+				if (inviteeAttrs != null) {
+					Hashtable invAns = new Hashtable();
+					for (int i = 0; i < currentSurvey.invitee_fields.length; i++) {
+						invAns.put(currentSurvey.invitee_fields[i],
+								inviteeAttrs[i]);
+					}
+					allAnswers.putAll(invAns);
+				}
+			}
+			Hashtable mainData = myDataBank.get_main_data();
+			if (mainData == null || mainData.size() == 0) // no data -> empty
+															// hash but test for
+															// null first just
+															// in case
+				currentPage = currentSurvey.pages[0];
+			else {
+				// STATUS column contains the current page, or NULL if done
+				String currentPageName = (String) mainData.remove("status");
+				if (currentPageName == null)
+					completedSurvey = true;
+				else {
+					Page p = currentSurvey.get_page(currentPageName);
+					if (p != null)
+						currentPage = p;
+					else
+						// page must've been deleted; start back at 1st page
+						currentPage = currentSurvey.pages[0];
+					mainData.remove("id");
+					allAnswers.putAll(mainData);
+				}
+			}
+		} catch (Exception e) {
+			WISE_Application.log_error(
+					"USER CONSTRUCTOR failed w/ " + e.toString(), e);
+			id = null; // signal an improperly initialized User
+		}
+	}
+
+	// constructor for testing without database -- NOT DEBUGGED
+	public User(Survey svy) {
+		// save the email's message ID as the user's survey message ID
+		String[] ids;
+		String[] inviteeAttrs = { "2" };
+		try {
+			id = "1";
+			currentSurvey = svy;
+			String[] testFields = currentSurvey.invitee_fields;
+			if (testFields != null && testFields.length > 0) {
+				Hashtable invAns = new Hashtable();
+				for (int i = 0; i < testFields.length; i++) {
+					invAns.put(testFields[i], inviteeAttrs[i]);
+				}
+				allAnswers.putAll(invAns);
+			}
+			myDataBank = new User_DB_Connection(this);
+		} catch (Exception e) {
+			WISE_Application.log_error(
+					"USER CONSTRUCTOR can't find MESSAGE_INDEX. :"
+							+ e.toString(), e);
+		}
+	}
+
+	// assemble values submitted (in http request params), advance page, store
+	// values in DataBank
+	public void readAndAdvancePage(Hashtable params, boolean advance) {
+		System.out.println("Entered readAndAdvancedPage()");
+		if (params == null) {
+			System.out.println("null params");
+		}
+		if (currentPage == null) {
+			System.out.println("null currentPage");
+		}
+		String debugCheck = "";
+		String[] pageMainFields = currentPage.get_fieldList();
+		char[] pageMainFieldTypes = currentPage.get_valueTypeList();
+		String[] pageMainVals = new String[pageMainFields.length];
+		for (int i = 0; i < pageMainFields.length; i++) {
+			Object theVal = params.get(pageMainFields[i]);
+			if (theVal != null) {
+				pageMainVals[i] = (String) theVal;
+				allAnswers.put(pageMainFields[i], theVal);
+				debugCheck += "{" + pageMainFields[i] + ":" + pageMainVals[i]
+						+ "}";
+			}
+		}
+		myDataBank.record_pageSubmit();
+		if (advance) // record state change and send interrupt message, but
+						// don't advance page
+			currentPage = currentSurvey.next_page(currentPage.id);
+
+		if (currentPage == null) // next_page() returns null only if finished;
+									// set done conditions immediately
+		{
+			System.out.println("Null pointer for current page");
+			set_done();
+		}
+		// this records new page (or null for completion) so don't have to call
+		// record_currentPage() from this function
+		myDataBank.storeMainData(pageMainFields, pageMainFieldTypes,
+				pageMainVals);
+
+		// TODO: (med) add SubjectSet part: get page's sets & set-questions;
+		// read 'em, store 'em
+	}
+
+	public void set_interrupt() {
+		myDataBank.close_survey_session();
+		myDataBank.set_userState("interrupted");
+		Message_Sequence msgSeq = get_current_MessageSequence();
+		Message msg = msgSeq.get_type_message("interrupt");
+		if (msg != null) {
+			String msg_use_id = myDataBank.record_messageUse(msg.id);
+			Message_Sender sndr = new Message_Sender(msgSeq);
+			sndr.send_message(msg, msg_use_id, this);
+		}
+	}
+
+	// call when done with survey, but if forwarding, hold off setting exercise
+	// as complete for invite purposes
+	public void set_done() {
+		completedSurvey = true;
+		myDataBank.close_survey_session();
+	}
+
+	// call when current participation complete - if forwarding, needs to be set
+	// by callback from app forwarded to
+	public void set_complete() {
+		myDataBank.set_userState("completed");
+		// send THANK YOU email, if any
+		Message_Sequence msgSeq = get_current_MessageSequence();
+		Message msg = msgSeq.get_type_message("done");
+		if (msg != null) {
+			String msg_use_id = myDataBank.record_messageUse(msg.id);
+			Message_Sender sndr = new Message_Sender(msgSeq);
+			sndr.send_message(msg, msg_use_id, this);
+		}
+	}
+
+	// //For offline testing: set page rather than pulling from database
+	// public void read_current_form(Hashtable params, int pageIndx)
+	// {
+	// currentPage = currentSurvey.pages[pageIndx];
+	// readAndAdvancePage(params);
+	// }
+	//
+
+	/** return all current data that the user has stored so far */
+	public Hashtable get_data() {
+		return allAnswers;
+	}
+
+	// Return null if field is empty
+	public Integer get_field_value(String fieldName) {
+		Integer value = null;
+		String value_str = "";
+		try {
+			value_str = (String) allAnswers.get(fieldName);
+		} catch (Exception e) {
+			WISE_Application.log_error("USER can't GET DATA:" + e.toString()
+					+ allAnswers.toString(), e);
+		}
+		if (value_str != null && value_str.length() > 0) {// check for empty
+															// values
+			value = new Integer(value_str);
+		}
+		return value;
+	}
+
+	/**
+	 * Output all Field, value pairs answered so far as a JavaScript string of
+	 * name:value pairs
+	 */
+	public String get_JS_values() {
+		String str = "{";
+		String field_name;
+		String field_value;
+		try {
+			// get the user's entered data for the entire survey
+			Hashtable pgAnswers = this.get_data();
+			// get the specific column from hashtable
+			if (!pgAnswers.isEmpty()) {
+				Enumeration en = pgAnswers.keys();
+				while (en.hasMoreElements()) {
+					field_name = (String) en.nextElement();
+					// exclude the fields of invitee & status
+					if ((!field_name.equalsIgnoreCase("INVITEE"))
+							&& (!field_name.equalsIgnoreCase("STATUS"))) {
+						// search by the key to get the value
+						field_value = (String) pgAnswers.get(field_name);
+						// exclude the null value and create a string of
+						// NAME:value pair used for JavaScript
+						if (field_value != null
+								&& !field_value.equalsIgnoreCase("null"))
+							str = str + "'" + field_name.toUpperCase() + "':'"
+									+ field_value + "',";
+					}
+				}
+				int len = str.length();
+				// delete the last comma from the string
+				if (len > 1)
+					str = str.substring(0, len - 1);
+				str = str + "}";
+			} else {
+				str += "}";
+			}
+		} catch (Exception e) {
+			WISE_Application
+					.log_error("USER RECORD EXISTS: " + e.toString(), e);
+		}
+		return str;
+	}
+
+	/**
+	 * Pull out answer values just for the current page and for the invitee
+	 * fields in use
+	 */
+	public Hashtable get_page_data() {
+		Hashtable result = new Hashtable();
+		if (currentSurvey.invitee_fields != null
+				&& currentSurvey.invitee_fields.length > 0) {
+			for (int i = 0; i < currentSurvey.invitee_fields.length; i++) {
+				String fldnm = currentSurvey.invitee_fields[i];
+				String fldval = (String) allAnswers.get(fldnm);
+				if (fldval != null)
+					result.put(fldnm, fldval);
+			}
+		}
+		for (int i = 0; i < currentPage.all_fieldNames.length; i++) {
+			String fldnm = currentPage.all_fieldNames[i];
+			String fldval = (String) allAnswers.get(fldnm);
+			if (fldval != null)
+				result.put(fldnm, fldval);
+		}
+		return result;
+	}
+
+	public Message_Sequence get_current_MessageSequence() {
+		Preface preface;
+		Message_Sequence msg_seq = null;
+		String msID = myDataBank.get_current_MessageSequence();
+		try {
+			preface = currentSurvey.study_space.get_preface();
+			if (preface == null || msID == null) {
+				throw new Exception("<p>Error: Can't get the preface file.</p>");
+			}
+			// get the message sequence
+			msg_seq = preface.get_message_sequence(msID);
+			if (msg_seq == null) {
+				throw new Exception(
+						"<p>Error: Can't find message sequence for the current survey.</p>");
+			}
+		} catch (Exception e) {
+			WISE_Application.log_error(
+					"USER can't get message sequence: " + e.toString(), e);
+		}
+		return msg_seq;
+	}
+
+	// /** called on entry to a page; save the current page status in the DB
+	// * User's next page must be set first */
+	// public void set_incomplete()
+	// {
+	// try
+	// {
+	// myDataBank.record_currentPage();
+	// }
+	// catch (Exception e)
+	// {
+	// WISE_Application.email_alert("USER SET INCOMPLETE: "+e.toString(), e);
+	// }
+	// }
+
+	/** create user's survey session */
+	public void start_survey_session(String browser_useragent) {
+		try {
+			myDataBank.record_currentPage();
+			myDataBank.set_userState("started"); // may have changed to
+													// interrupted
+			user_session = myDataBank.create_survey_session(browser_useragent,
+					messageID);
+		} catch (Exception e) {
+			WISE_Application.log_error(
+					"USER start_survey_session:" + e.toString(), e);
+		}
+	}
+
+	public void set_page(String newPgName) {
+		currentPage = currentSurvey.get_page(newPgName);
+		myDataBank.record_currentPage();
+	}
+
+	/** check if user has entered any survey data */
+
+	public boolean started_survey() {
+		if (myDataBank.get_currentPageName() != null)
+			return true;
+		String theState = myDataBank.get_userState();
+		if (theState == null)
+			return false;
+		if (theState.equalsIgnoreCase("interrupted")
+				|| theState.equalsIgnoreCase("started")) // note returns true if
+															// consent given but
+															// no pages
+															// submitted
+			return true;
+		return false;
+	}
+
+	/** check if user has completed the survey */
+	public boolean completed_survey() {
+		return completedSurvey;
+	}
+
+	public boolean check_consent() {
+		return myDataBank.check_consent();
+	}
+
+	/** save the user's consent answer - accept or decline */
+	public void consent() {
+		myDataBank.set_consent("Y");
+		// myDataBank.record_currentPage(); begin survey should handle all state
+		// updates
+		// myDataBank.set_userState("started");
+	}
+
+	public void decline() {
+		try {
+			myDataBank.set_consent("N");
+			myDataBank.set_userState("declined");
+		} catch (Exception e) {
+			WISE_Application.log_error("Decline:" + e.toString(), e);
+		}
+	}
+
+	/**
+	 * gets a hashtable of all the page IDs keyed to "completed" vs currently
+	 * working on
+	 */
+	public Hashtable get_completed_pages() {
+		return myDataBank.get_completed_pages(); // pass thru to databank
+	}
+
+	// ===============================================================
+	// Code separated to here. Not worth continuing for now
+
+	/**
+	 * add a record into the welcome_hits table, to log that the welcome page
+	 * was visited/hit by the user
+	 */
+	public void record_welcome_hit() {
+		if (!myDataBank.record_welcome_hit(this.id, currentSurvey.id))
+			log.error("Error while recording welcome hit for invitee with ID="
+					+ this.id + " survey ID " + currentSurvey.id);
+	}
+
+	/** record that the decline form was hit form the invitation decline link */
+	public void record_decline_hit(String msgId, String studyId) {
+		if (!myDataBank.record_decline_hit(msgId, studyId, this.id,
+				currentSurvey.id))
+			log.error("Error while recording decline hit for invitee with ID="
+					+ this.id + " survey ID " + currentSurvey.id);
+	}
+
+	/** set the decline reason */
+	public void set_decline_reason(String reason) {
+		if (!myDataBank.set_decline_reason(this.id, reason))
+			log.error("Error while recording reason for the decline for invitee with ID="
+					+ this.id);
+	}
+
+	/** get the current number of completers from the survey data table */
+	public int check_completion_number() {
+		return myDataBank.check_completion_number(currentSurvey.id);
+	}
+
+}
