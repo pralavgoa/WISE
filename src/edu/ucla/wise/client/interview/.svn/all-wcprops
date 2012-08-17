@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/lofts/WISE/!svn/ver/12/src/edu/ucla/wise/client/interview
+END
+interview_login.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/lofts/WISE/!svn/ver/1/src/edu/ucla/wise/client/interview/interview_login.java
+END
+interview_logout.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/lofts/WISE/!svn/ver/2/src/edu/ucla/wise/client/interview/interview_logout.java
+END
+InterviewManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/lofts/WISE/!svn/ver/12/src/edu/ucla/wise/client/interview/InterviewManager.java
+END
