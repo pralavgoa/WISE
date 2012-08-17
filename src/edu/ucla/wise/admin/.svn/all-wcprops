@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/lofts/WISE/!svn/ver/43/src/edu/ucla/wise/admin
+END
+AdminMonitor.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/lofts/WISE/!svn/ver/12/src/edu/ucla/wise/admin/AdminMonitor.java
+END
+dev2prod.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/lofts/WISE/!svn/ver/12/src/edu/ucla/wise/admin/dev2prod.java
+END
+xsltview.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/lofts/WISE/!svn/ver/12/src/edu/ucla/wise/admin/xsltview.java
+END
+download_file.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/lofts/WISE/!svn/ver/2/src/edu/ucla/wise/admin/download_file.java
+END
+reload.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/lofts/WISE/!svn/ver/12/src/edu/ucla/wise/admin/reload.java
+END
+view_survey.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/lofts/WISE/!svn/ver/12/src/edu/ucla/wise/admin/view_survey.java
+END
+AdminTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/lofts/WISE/!svn/ver/12/src/edu/ucla/wise/admin/AdminTest.java
+END
+complete.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/lofts/WISE/!svn/ver/1/src/edu/ucla/wise/admin/complete.java
+END
+load_data.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/lofts/WISE/!svn/ver/43/src/edu/ucla/wise/admin/load_data.java
+END
+logout.java
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/lofts/WISE/!svn/ver/2/src/edu/ucla/wise/admin/logout.java
+END
+print_survey.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/lofts/WISE/!svn/ver/2/src/edu/ucla/wise/admin/print_survey.java
+END
+survey_result.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/lofts/WISE/!svn/ver/2/src/edu/ucla/wise/admin/survey_result.java
+END
+logonp.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/lofts/WISE/!svn/ver/17/src/edu/ucla/wise/admin/logonp.java
+END
