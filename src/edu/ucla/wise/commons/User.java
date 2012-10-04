@@ -17,8 +17,8 @@ public class User {
 	public enum INVITEE_FIELDS {
 		id(null, false), firstname(null, true), lastname(null, true), salutation(
 				null, true), email(null, true), phone(null, false), irb_id(null,
-						false), field("columnName", false), textField("columnName",
-								false), codedField("columnName", false); // optional
+				false), field("columnName", false), textField("columnName",
+				false), codedField("columnName", false); // optional
 
 		private String attributeName;
 		private boolean shouldDisplay;
@@ -31,7 +31,7 @@ public class User {
 		public String getAttributeName() {
 			return this.attributeName;
 		}
-
+		
 		public boolean isShouldDisplay(){
 			return shouldDisplay;
 		}
@@ -46,9 +46,9 @@ public class User {
 	};
 
 	private static String[] reqInviteeFields = {
-		INVITEE_FIELDS.firstname.name(), INVITEE_FIELDS.lastname.name(),
-		INVITEE_FIELDS.salutation.name(), INVITEE_FIELDS.email.name(),
-		INVITEE_FIELDS.irb_id.name() };
+			INVITEE_FIELDS.firstname.name(), INVITEE_FIELDS.lastname.name(),
+			INVITEE_FIELDS.salutation.name(), INVITEE_FIELDS.email.name(),
+			INVITEE_FIELDS.irb_id.name() };
 
 	/** Instance Variables */
 	public String id;
@@ -104,25 +104,17 @@ public class User {
 				if (inviteeAttrs != null) {
 					Hashtable invAns = new Hashtable();
 					for (int i = 0; i < currentSurvey.invitee_fields.length; i++) {
-						if(inviteeAttrs[i]!=null)
-						{
-							invAns.put(currentSurvey.invitee_fields[i],
-									inviteeAttrs[i]);
-						}
-						else
-						{
-							invAns.put(currentSurvey.invitee_fields[i],
-									"");
-						}
+						invAns.put(currentSurvey.invitee_fields[i],
+								inviteeAttrs[i]);
 					}
 					allAnswers.putAll(invAns);
 				}
 			}
 			Hashtable mainData = myDataBank.get_main_data();
 			if (mainData == null || mainData.size() == 0) // no data -> empty
-				// hash but test for
-				// null first just
-				// in case
+															// hash but test for
+															// null first just
+															// in case
 				currentPage = currentSurvey.pages[0];
 			else {
 				// STATUS column contains the current page, or NULL if done
@@ -174,51 +166,41 @@ public class User {
 	// assemble values submitted (in http request params), advance page, store
 	// values in DataBank
 	public void readAndAdvancePage(Hashtable params, boolean advance) {
+		String debugCheck = "";
+		String[] pageMainFields = currentPage.get_fieldList();
+		char[] pageMainFieldTypes = currentPage.get_valueTypeList();
+		String[] pageMainVals = new String[pageMainFields.length];
+		for (int i = 0; i < pageMainFields.length; i++) {
+		    if(pageMainFields[i] != null){
+			Object theVal = params.get(pageMainFields[i]);
+			if (theVal != null) {
+				pageMainVals[i] = (String) theVal;
+				allAnswers.put(pageMainFields[i], theVal);
+				debugCheck += "{" + pageMainFields[i] + ":" + pageMainVals[i]
+						+ "}";
+			}
+		    }else{
+			//do nothing
+		    }
 
-		WISE_Application.log_info("Checking parameters");
-
-		if (params == null) {
-			System.out.println("null params");
 		}
+		myDataBank.record_pageSubmit();
+		if (advance) // record state change and send interrupt message, but
+						// don't advance page
+			currentPage = currentSurvey.next_page(currentPage.id);
 
 		if (currentPage == null) // next_page() returns null only if finished;
-			// set done conditions immediately
+									// set done conditions immediately
 		{
-			System.out.println("Null pointer for current page");
 			set_done();
 		}
+		// this records new page (or null for completion) so don't have to call
+		// record_currentPage() from this function
+		myDataBank.storeMainData(pageMainFields, pageMainFieldTypes,
+				pageMainVals);
 
-
-		if(params != null && currentPage !=null){
-
-
-			String[] pageMainFields = currentPage.get_fieldList();
-			char[] pageMainFieldTypes = currentPage.get_valueTypeList();
-			String[] pageMainVals = new String[pageMainFields.length];
-
-			for (int i = 0; i < pageMainFields.length; i++) {
-				String theVal = (String) params.get(pageMainFields[i]);
-				if (theVal != null) {
-					pageMainVals[i] = theVal;
-					allAnswers.put(pageMainFields[i], theVal);
-				}
-			}
-
-			myDataBank.record_pageSubmit();
-			if (advance) // record state change and send interrupt message, but
-				// don't advance page
-				currentPage = currentSurvey.next_page(currentPage.id);
-
-			// this records new page (or null for completion) so don't have to call
-			// record_currentPage() from this function
-			myDataBank.storeMainData(pageMainFields, pageMainFieldTypes,
-					pageMainVals);
-
-			// TODO: (med) add SubjectSet part: get page's sets & set-questions;
-			// read 'em, store 'em
-
-		}
-
+		// TODO: (med) add SubjectSet part: get page's sets & set-questions;
+		// read 'em, store 'em
 
 	}
 
@@ -279,7 +261,7 @@ public class User {
 					+ allAnswers.toString(), e);
 		}
 		if (value_str != null && value_str.length() > 0) {// check for empty
-			// values
+															// values
 			value = new Integer(value_str);
 		}
 		return value;
@@ -324,7 +306,7 @@ public class User {
 			}
 		} catch (Exception e) {
 			WISE_Application
-			.log_error("USER RECORD EXISTS: " + e.toString(), e);
+					.log_error("USER RECORD EXISTS: " + e.toString(), e);
 		}
 		return str;
 	}
@@ -394,7 +376,7 @@ public class User {
 		try {
 			myDataBank.record_currentPage();
 			myDataBank.set_userState("started"); // may have changed to
-			// interrupted
+													// interrupted
 			user_session = myDataBank.create_survey_session(browser_useragent,
 					messageID);
 		} catch (Exception e) {
@@ -418,9 +400,9 @@ public class User {
 			return false;
 		if (theState.equalsIgnoreCase("interrupted")
 				|| theState.equalsIgnoreCase("started")) // note returns true if
-			// consent given but
-			// no pages
-			// submitted
+															// consent given but
+															// no pages
+															// submitted
 			return true;
 		return false;
 	}

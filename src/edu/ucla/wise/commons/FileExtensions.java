@@ -11,8 +11,5 @@ package edu.ucla.wise.commons;
  * 
  */
 public enum FileExtensions {
-	css,
-	csv,
-	xml,
-	sql
+    css, csv, xml, sql
 }

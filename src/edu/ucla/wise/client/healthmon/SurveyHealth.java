@@ -20,36 +20,36 @@ import edu.ucla.wise.commons.WiseConstants;
  */
 public class SurveyHealth implements Runnable {
 
-	public Study_Space studySpace;
-	public static Set<String> monitorStudies = new HashSet<String>();
+    public Study_Space studySpace;
+    public static Set<String> monitorStudies = new HashSet<String>();
 
-	private SurveyHealth(Study_Space study) {
-		this.studySpace = study;
-	}
+    private SurveyHealth(Study_Space study) {
+	this.studySpace = study;
+    }
 
-	/**
-	 * This function will start monitoring for "this" survey if it has already
-	 * been not started. If the monitoring has already started then this
-	 * function will just return;
-	 * 
-	 * @param survey
-	 */
-	public static synchronized void monitor(Study_Space study) {
-		if (!monitorStudies.contains(study.study_name)) {
-			monitorStudies.add(study.study_name);
-			Thread t = new Thread(new SurveyHealth(study));
-			t.start();
-		}
+    /**
+     * This function will start monitoring for "this" survey if it has already
+     * been not started. If the monitoring has already started then this
+     * function will just return;
+     * 
+     * @param survey
+     */
+    public static synchronized void monitor(Study_Space study) {
+	if (!monitorStudies.contains(study.study_name)) {
+	    monitorStudies.add(study.study_name);
+	    Thread t = new Thread(new SurveyHealth(study));
+	    t.start();
 	}
+    }
 
-	@Override
-	public synchronized void run() {
-		while (true) {
-			studySpace.db.updateSurveyHealthStatus(studySpace.study_name);
-			try {
-				Thread.sleep(WiseConstants.surveyUpdateInterval);
-			} catch (InterruptedException e) {
-			}
-		}
+    @Override
+    public synchronized void run() {
+	while (true) {
+	    studySpace.db.updateSurveyHealthStatus(studySpace.study_name);
+	    try {
+		Thread.sleep(WiseConstants.surveyUpdateInterval);
+	    } catch (InterruptedException e) {
+	    }
 	}
+    }
 }

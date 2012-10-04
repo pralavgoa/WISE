@@ -1,19 +1,19 @@
-var startDate
-var startSecs //the starting time of clock
-var start_time //the starting time to count losing mousemove event
+var startDate;
+var startSecs; //the starting time of clock
+var start_time; //the starting time to count losing mousemove event
 
-var timerID = null
-var timerRunning = false
+var timerID = null;
+var timerRunning = false;
 
-var nowSecs  //the current time in seconds
-var elapsedSecs //total time
+var nowSecs;  //the current time in seconds
+var elapsedSecs; //total time
 var timeValue;
 
-var hours
-var minutes
-var seconds
+var hours;
+var minutes;
+var seconds;
 
-var run_once=0
+var run_once=0;
 
 
 //to start the clock
@@ -90,15 +90,15 @@ function showtime()
 //pop up the window for reminding doing the quiz first
 function pop_win()
 {
-    	text =  "<html>\n<head>\n<title>Goback to Survey</title>\n<body bgcolor=\"#FFFFF5\">\n"
-	text += "<p><font face=\"Verdana, Arial, Helvetica\" size=1>"
-	text += "You have spent " + timeValue + " on this survey page.<br>"
-	text += "Please close this pop-up window and finish this page within the next three minutes.<br>"
-	text += "Otherwise your session will be loggoed off, but your data will be saved."
-	text += "</font></p><p><center><button onClick='javascript: opener.focus(); opener.back_flag=1; window.close()'>Close</button></center></p>"
-	text += "</body>\n</html>\n"
-	newWindow = window.open('','newWin','width=300, height=145, screenX=0,screenY=0, left=0,top=0,toolbar=no')
-	newWindow.document.write(text)
+    	text =  "<html>\n<head>\n<title>Goback to Survey</title>\n<body bgcolor=\"#FFFFF5\">\n";
+	text += "<p><font face=\"Verdana, Arial, Helvetica\" size=1>";
+	text += "You have spent " + timeValue + " on this survey page.<br>";
+	text += "Please close this pop-up window and finish this page within the next three minutes.<br>";
+	text += "Otherwise your session will be loggoed off, but your data will be saved.";
+	text += "</font></p><p><center><button onClick='javascript: opener.focus(); opener.back_flag=1; window.close()'>Close</button></center></p>";
+	text += "</body>\n</html>\n";
+	newWindow = window.open('','newWin','width=300, height=145, screenX=0,screenY=0, left=0,top=0,toolbar=no');
+	newWindow.document.write(text);
 	if (newWindow.opener == null) 
 		newWindow.opener = self;
 }
@@ -156,7 +156,7 @@ function setFields()
 				else
 				{
 					flag = 0;
-					for (j=0; j<elementResult.length; j++)
+					for (var j=0; j<elementResult.length; j++)
 					{
 						if ( (elementResult[j].value == top.fieldVals[fieldName]) && (elementResult[j].type == "radio") )
 						{
@@ -166,13 +166,13 @@ function setFields()
 					}
 					if (!flag)
 					{
-						for (j=0; j<elementResult.length; j++) 
+						for (var j=0; j<elementResult.length; j++) 
 							if (elementResult[j].type == "text")
 								elementResult[j].value = top.fieldVals[fieldName];
 					}
 					else
 					{
-						for (j=0; j<elementResult.length; j++) 
+						for (var j=0; j<elementResult.length; j++) 
 							if (elementResult[j].type == "text")
 								elementResult[j].value = '';
 					}
@@ -180,7 +180,7 @@ function setFields()
 			}
 		}
 	}
-	startclock()
+	startclock();
 }
 
 function isblank(s)
@@ -188,13 +188,22 @@ function isblank(s)
 	for (var i = 0; i < s.length; i++)
 	{
 		var c = s.charAt(i);
-		if ((c != ' ')&&(c != '\n') && (c != '\t')) return false
+		if ((c != ' ')&&(c != '\n') && (c != '\t')) return false;
 	}
 	return true;
 }
 
+var isARepeatingInstanceAddedGlobal = false;
 function check_and_submit() 
 {
+	if(isARepeatingInstanceAddedGlobal){
+		var confirmNextPage = confirm("You have not saved your changes. Do you still want to proceed?");
+		
+		if(! (confirmNextPage==true)){
+			return;
+		}
+	}
+	
 	var flag = 0;
 	if (top.requiredFields) 
 	{
@@ -216,7 +225,7 @@ function check_and_submit()
 			else
 			{
 				var check_flag = 0;
-				for (j=0; j<elementResult.length; j++)
+				for (var j=0; j<elementResult.length; j++)
 				{
 					if ( (elementResult[j].checked == true) )
 						check_flag = 1;
@@ -259,7 +268,7 @@ function putDaytime()
 
 function clearButtons(keyArray) 
 {
-	for (i=0; i<keyArray.length; i++) 
+	for (var i=0; i<keyArray.length; i++) 
 	{
 		elementResult = document.mainform.elements[keyArray[i]];
 		if (elementResult.type == "text") 
@@ -268,7 +277,7 @@ function clearButtons(keyArray)
 			elementResult.checked = false;
 		else
 		{
-			for (j=0; j<elementResult.length; j++) 
+			for (var j=0; j<elementResult.length; j++) 
 				if (elementResult[j].type == "text") 
 					elementResult[j].value = "";
 				else 

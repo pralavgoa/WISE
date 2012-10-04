@@ -17,17 +17,17 @@ import edu.ucla.wise.commons.WiseConstants;
  */
 
 public class logout extends HttpServlet implements SingleThreadModel {
-	public void service(HttpServletRequest req, HttpServletResponse res)
-			throws ServletException, IOException {
-		HttpSession session = req.getSession(true);
+    public void service(HttpServletRequest req, HttpServletResponse res)
+	    throws ServletException, IOException {
+	HttpSession session = req.getSession(true);
 
-		// prepare for writing
-		PrintWriter out;
-		res.setContentType("text/html");
-		out = res.getWriter();
+	// prepare for writing
+	PrintWriter out;
+	res.setContentType("text/html");
+	out = res.getWriter();
 
-		session.invalidate();
-		res.sendRedirect(req.getContextPath() + "/" + WiseConstants.ADMIN_APP
-				+ "/index.html");
-	}
+	session.invalidate();
+	res.sendRedirect(req.getContextPath() + "/" + WiseConstants.ADMIN_APP
+		+ "/index.html");
+    }
 }

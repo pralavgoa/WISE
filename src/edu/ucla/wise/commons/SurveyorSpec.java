@@ -1,5 +1,5 @@
 package edu.ucla.wise.commons;
 
-public class SurveyorSpec extends WISE_Application{
+public class SurveyorSpec extends WISE_Application {
 
 }

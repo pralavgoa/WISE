@@ -22,51 +22,51 @@ import edu.ucla.wise.commons.WISE_Application;
  */
 public class complete extends HttpServlet {
 
-	public void service(HttpServletRequest req, HttpServletResponse res)
-			throws ServletException, IOException {
-		PrintWriter out;
-		Statement stmt = null;
-		Connection conn = null;
-		res.setContentType("text/html");
-		out = res.getWriter();
+    public void service(HttpServletRequest req, HttpServletResponse res)
+	    throws ServletException, IOException {
+	PrintWriter out;
+	Statement stmt = null;
+	Connection conn = null;
+	res.setContentType("text/html");
+	out = res.getWriter();
 
-		String userID = req.getParameter("u");
-		String surveyID = req.getParameter("si");
-		String studySpaceID = req.getParameter("ss");
+	String userID = req.getParameter("u");
+	String surveyID = req.getParameter("si");
+	String studySpaceID = req.getParameter("ss");
 
-		if (userID != null && surveyID != null & studySpaceID != null) {
-			AdminInfo.check_init(req.getContextPath());
-			String user = WISE_Application.decode(userID);
-			String ss = WISE_Application.decode(studySpaceID);
-			Study_Space studySpace = Study_Space.get_Space(ss);
+	if (userID != null && surveyID != null & studySpaceID != null) {
+	    AdminInfo.check_init(req.getContextPath());
+	    String user = WISE_Application.decode(userID);
+	    String ss = WISE_Application.decode(studySpaceID);
+	    Study_Space studySpace = Study_Space.get_Space(ss);
 
-			try {
-				conn = studySpace.getDBConnection();
-				stmt = conn.createStatement();
-				stmt.executeUpdate("update survey_user_state set state='completed', state_count=1, entry_time=now() where invitee="
-						+ user + " AND survey='" + surveyID + "'");
+	    try {
+		conn = studySpace.getDBConnection();
+		stmt = conn.createStatement();
+		stmt.executeUpdate("update survey_user_state set state='completed', state_count=1, entry_time=now() where invitee="
+			+ user + " AND survey='" + surveyID + "'");
 
-			} catch (SQLException e) {
-				e.printStackTrace();
-			} finally {
-				if (stmt != null) {
-					try {
-						stmt.close();
-					} catch (SQLException e) {
-					}
-				}
-				if (conn != null) {
-					try {
-						conn.close();
-					} catch (SQLException e) {
-					}
-				}
-
-			}
+	    } catch (SQLException e) {
+		e.printStackTrace();
+	    } finally {
+		if (stmt != null) {
+		    try {
+			stmt.close();
+		    } catch (SQLException e) {
+		    }
 		}
-		out.println("OK");
-		out.close();
-		return;
+		if (conn != null) {
+		    try {
+			conn.close();
+		    } catch (SQLException e) {
+		    }
+		}
 
+	    }
 	}
+	out.println("OK");
+	out.close();
+	return;
+
+    }
 }
