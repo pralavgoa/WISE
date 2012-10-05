@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/WebContent/WEB-INF/lib/activation.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/WebContent/WEB-INF/lib/commons-dbcp-1.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/WebContent/WEB-INF/lib/cos.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/WebContent/WEB-INF/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/WebContent/WEB-INF/lib/mail.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/WebContent/WEB-INF/lib/mysql-connector-java-3.1.12-bin.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/annotations-api.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/catalina.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/catalina-ant.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/catalina-ha.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/catalina-tribes.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/ecj-3.7.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/el-api.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/jasper.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/jasper-el.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/jsp-api.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/servlet-api.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/tomcat-coyote.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/tomcat-dbcp.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/tomcat-i18n-es.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/tomcat-i18n-fr.jar"/>
+	<classpathentry kind="lib" path="C:/_GSR_Related/workspace/WISE/ext_lib_tomcat/tomcat-i18n-ja.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
