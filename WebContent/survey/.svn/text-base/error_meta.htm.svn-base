@@ -68,18 +68,16 @@ function MM_showHideLayers() { //v3.0
 
 
 
-setTimeout("MM_showHideLayers('Layer1','','show')", 60000)
+setTimeout("MM_showHideLayers('Layer1','','show')", 20000)
 
 </script>
 
 </head>
 
-<body>
-<!-- <body bgcolor="#FFFFCC" text="#000000"> -->
-
+<body bgcolor="#FFFFCC" text="#000000">
 
 <div align=center id="Layer1"
-	style="position: absolute; width: 600px; height: 660px; z-index: 1; left: 110px; top: 100px; border: 1px none #000000; visibility: hidden">
+	style="position: absolute; width: 600px; height: 660px; z-index: 1; left: 98px; top: 120px; background-color: #FFFFCC; layer-background-color: #FFFFCC; border: 1px none #000000; visibility: hidden">
 
 <br>
 
@@ -145,10 +143,10 @@ setTimeout("MM_showHideLayers('Layer1','','show')", 60000)
 	<tr>
 
 		<td width="98" align="center" valign="top"><img
-			src="imageRender?img=w1_logo.jpg" align="right" width="75" height="75"></td>
+			src="imageRender?img=somlogo.gif" align="right" width="75" height="75"></td>
 
 		<td width="540" align="center" valign="middle"><img
-			src="imageRender?img=title.gif" align="middle">
+			src="imageRender?img=title.gif" align="middle" width="400" height="50">
 
 		</td>
 

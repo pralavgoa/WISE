@@ -5,8 +5,7 @@
 <link rel="stylesheet" href="styleRender?app=&css=style.css"
 	type="text/css">
 </head>
-<body>
-<!-- <body bgcolor="#FFFFCC" text="#000000"> -->
+<body bgcolor="#FFFFCC" text="#000000">
 	<form name="form1" method="post" action="consent_decline">
 		<table width="100%" cellspacing=1 cellpadding=9 align=left border="0">
 			<tr>

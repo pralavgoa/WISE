@@ -6,8 +6,7 @@ Error</title>
 <!--link rel="stylesheet" href="style.css" type="text/css"-->
 <link rel="stylesheet" href="styleRender?app=&css=style.css" type="text/css">
 </head>
-<body>
-<!-- <body bgcolor="#FFFFCC" text="#000000"> -->
+<body bgcolor="#FFFFCC" text="#000000">
 <table width="100%" cellspacing=1 cellpadding=9 align=left border="0">
 	<tr>
 		<td width="20%" align="center" valign="top"><img

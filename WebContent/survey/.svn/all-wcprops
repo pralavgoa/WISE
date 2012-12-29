@@ -1,13 +1,7 @@
 K 25
 svn:wc:ra_dav:version-url
-V 41
-/lofts/WISE/!svn/ver/47/WebContent/survey
-END
-thanks.htm
-K 25
-svn:wc:ra_dav:version-url
-V 52
-/lofts/WISE/!svn/ver/32/WebContent/survey/thanks.htm
+V 40
+/lofts/WISE/!svn/ver/7/WebContent/survey
 END
 main_1.js
 K 25
@@ -15,11 +9,17 @@ svn:wc:ra_dav:version-url
 V 50
 /lofts/WISE/!svn/ver/1/WebContent/survey/main_1.js
 END
+thanks.htm
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/lofts/WISE/!svn/ver/24/WebContent/survey/thanks.htm
+END
 error.htm
 K 25
 svn:wc:ra_dav:version-url
-V 51
-/lofts/WISE/!svn/ver/32/WebContent/survey/error.htm
+V 50
+/lofts/WISE/!svn/ver/1/WebContent/survey/error.htm
 END
 begin_fix.htm
 K 25
@@ -27,29 +27,29 @@ svn:wc:ra_dav:version-url
 V 54
 /lofts/WISE/!svn/ver/1/WebContent/survey/begin_fix.htm
 END
+interrupt.htm
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/lofts/WISE/!svn/ver/24/WebContent/survey/interrupt.htm
+END
+error_browser.htm
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/lofts/WISE/!svn/ver/1/WebContent/survey/error_browser.htm
+END
 print.css
 K 25
 svn:wc:ra_dav:version-url
 V 50
 /lofts/WISE/!svn/ver/1/WebContent/survey/print.css
 END
-error_browser.htm
-K 25
-svn:wc:ra_dav:version-url
-V 59
-/lofts/WISE/!svn/ver/32/WebContent/survey/error_browser.htm
-END
-interrupt.htm
-K 25
-svn:wc:ra_dav:version-url
-V 55
-/lofts/WISE/!svn/ver/32/WebContent/survey/interrupt.htm
-END
 old_error_meta.htm
 K 25
 svn:wc:ra_dav:version-url
-V 60
-/lofts/WISE/!svn/ver/32/WebContent/survey/old_error_meta.htm
+V 59
+/lofts/WISE/!svn/ver/1/WebContent/survey/old_error_meta.htm
 END
 begin_frame.htm
 K 25
@@ -66,8 +66,8 @@ END
 error_meta.htm
 K 25
 svn:wc:ra_dav:version-url
-V 56
-/lofts/WISE/!svn/ver/46/WebContent/survey/error_meta.htm
+V 55
+/lofts/WISE/!svn/ver/6/WebContent/survey/error_meta.htm
 END
 style.css
 K 25
@@ -78,8 +78,8 @@ END
 decline.htm
 K 25
 svn:wc:ra_dav:version-url
-V 53
-/lofts/WISE/!svn/ver/32/WebContent/survey/decline.htm
+V 52
+/lofts/WISE/!svn/ver/4/WebContent/survey/decline.htm
 END
 check_browser.js
 K 25
@@ -90,20 +90,20 @@ END
 link_error.htm
 K 25
 svn:wc:ra_dav:version-url
-V 56
-/lofts/WISE/!svn/ver/32/WebContent/survey/link_error.htm
-END
-abort.htm
-K 25
-svn:wc:ra_dav:version-url
-V 51
-/lofts/WISE/!svn/ver/32/WebContent/survey/abort.htm
+V 55
+/lofts/WISE/!svn/ver/2/WebContent/survey/link_error.htm
 END
 index.htm
 K 25
 svn:wc:ra_dav:version-url
 V 51
-/lofts/WISE/!svn/ver/32/WebContent/survey/index.htm
+/lofts/WISE/!svn/ver/24/WebContent/survey/index.htm
+END
+abort.htm
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/lofts/WISE/!svn/ver/1/WebContent/survey/abort.htm
 END
 main.js
 K 25
@@ -111,23 +111,17 @@ svn:wc:ra_dav:version-url
 V 48
 /lofts/WISE/!svn/ver/6/WebContent/survey/main.js
 END
-incorrectUrl.htm
-K 25
-svn:wc:ra_dav:version-url
-V 58
-/lofts/WISE/!svn/ver/32/WebContent/survey/incorrectUrl.htm
-END
 decline_thanks.htm
 K 25
 svn:wc:ra_dav:version-url
-V 60
-/lofts/WISE/!svn/ver/32/WebContent/survey/decline_thanks.htm
+V 59
+/lofts/WISE/!svn/ver/4/WebContent/survey/decline_thanks.htm
 END
 thanks_DrewSvy.htm
 K 25
 svn:wc:ra_dav:version-url
-V 60
-/lofts/WISE/!svn/ver/32/WebContent/survey/thanks_DrewSvy.htm
+V 59
+/lofts/WISE/!svn/ver/1/WebContent/survey/thanks_DrewSvy.htm
 END
 openhelpwin.js
 K 25
@@ -138,26 +132,20 @@ END
 thanks_uclaTmp.htm
 K 25
 svn:wc:ra_dav:version-url
-V 60
-/lofts/WISE/!svn/ver/32/WebContent/survey/thanks_uclaTmp.htm
+V 59
+/lofts/WISE/!svn/ver/1/WebContent/survey/thanks_uclaTmp.htm
 END
 error_javascript.htm
 K 25
 svn:wc:ra_dav:version-url
-V 62
-/lofts/WISE/!svn/ver/45/WebContent/survey/error_javascript.htm
+V 61
+/lofts/WISE/!svn/ver/1/WebContent/survey/error_javascript.htm
 END
 new_invitee.jsp
 K 25
 svn:wc:ra_dav:version-url
 V 57
-/lofts/WISE/!svn/ver/32/WebContent/survey/new_invitee.jsp
-END
-browser_check.htm
-K 25
-svn:wc:ra_dav:version-url
-V 59
-/lofts/WISE/!svn/ver/47/WebContent/survey/browser_check.htm
+/lofts/WISE/!svn/ver/24/WebContent/survey/new_invitee.jsp
 END
 survey.js
 K 25
@@ -171,15 +159,15 @@ svn:wc:ra_dav:version-url
 V 50
 /lofts/WISE/!svn/ver/1/WebContent/survey/begin.htm
 END
-timeout.htm
-K 25
-svn:wc:ra_dav:version-url
-V 53
-/lofts/WISE/!svn/ver/32/WebContent/survey/timeout.htm
-END
 result_help.htm
 K 25
 svn:wc:ra_dav:version-url
-V 57
-/lofts/WISE/!svn/ver/32/WebContent/survey/result_help.htm
+V 56
+/lofts/WISE/!svn/ver/1/WebContent/survey/result_help.htm
+END
+timeout.htm
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/lofts/WISE/!svn/ver/1/WebContent/survey/timeout.htm
 END

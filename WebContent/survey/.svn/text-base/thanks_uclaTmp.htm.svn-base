@@ -16,9 +16,7 @@ if(str.indexOf("?")!=-1)
 }
 </script>
 </head>
-<body>
-<!-- <body bgcolor="#FFFFCC" text="#000000"> -->
-
+<body bgcolor="#FFFFCC" text="#000000">
 <table width="100%" cellspacing=1 cellpadding=9 align=left border="0">
 	<tr>
 		<td width="20%" align="center" valign="top"><img

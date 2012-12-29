@@ -86,7 +86,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
         
         if(admin_info == null || s_id == null )
         {
-            response.sendRedirect(path + WiseConstants.ADMIN_APP + "/error.htm");
+            response.sendRedirect(path + "/error.htm");
             return;
         }
         //get the IRB groups
@@ -94,7 +94,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
         irbgroup = admin_info.get_irb_groups();
         if(irbgroup == null)
         {
-            response.sendRedirect(path + WiseConstants.ADMIN_APP + "/error.htm");
+            response.sendRedirect(path + "/error.htm");
             return;
         }
 %>
@@ -109,6 +109,12 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
 		All Invitees</a> </strong></em></p>
 		<p><a href='#' onClick="document.form1.reset()"><em><strong>Clear
 		Selection</strong></em></a></p>
+		<p>To further limit your selection, you can also enter a logic
+		statement below using SQL syntax. For example, to select only invitees
+		with ID &gt; 200 AND emails ending in ".edu", you can click "Select
+		All" and enter "invitee.id > 200 and email like "%.edu" below.</p>
+		<p align=center><input type='text' name='whereclause' size='40'
+			maxlength='100'></p>
 		</td>
 	</tr>
 </table>

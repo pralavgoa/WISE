@@ -48,6 +48,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
     }
   }
 </script>
+<script type="text/javascript" src="../survey/jquery-1.7.1.min.js"></script> 
 <%
         //get the server path
         String path=request.getContextPath();
@@ -70,6 +71,7 @@ javax.xml.transform.stream.*, com.oreilly.servlet.MultipartRequest"%>
 	</tr>
 </table>
 <%
+	System.out.println("Send other messages is clicked");
         session = request.getSession(true);
         //if the session is expired, go back to the logon page
         if (session.isNew())

@@ -79,9 +79,7 @@ setTimeout("MM_showHideLayers('Layer1','','hide')", 2000)
 
 </head>
 
-<body>
-<!-- <body bgcolor="#FFFFCC" text="#000000"> -->
-
+<body bgcolor="#FFFFCC" text="#000000">
 
 <div align=center id="Layer1"
 	style="position: absolute; width: 600px; height: 660px; z-index: 1; left: 98px; top: 120px; background-color: #FFFFCC; layer-background-color: #FFFFCC; border: 1px none #000000; visibility: visible">

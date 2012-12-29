@@ -36,9 +36,9 @@
 		<table width=100% cellspacing=1 cellpadding=9 border=0>
 			<tr>
 				<td width=98 align=center valign=top><img
-					src='imageRender?img=w1_logo.jpg' border=0 align=middle></td>
+					src='imageRender?app=<%=theStudy.study_name%>&img=w1_logo.jpg' border=0 align=middle></td>
 				<td width=695 align=center valign=middle><img
-					src='imageRender?img=title.gif' border=0 align=middle></td>
+					src='imageRender?app=<%=theStudy.study_name%>&img=title.gif' border=0 align=middle></td>
 				<td rowspan=6 align=center width=280>&nbsp;</td>
 			</tr>
 			<tr>

@@ -65,7 +65,18 @@
 									return;
 								}
 								admin_info.update_invitees(request);
-								out.println(admin_info.myStudySpace.db.addInviteeAndDisplayPage(request));
+								Map<String,String> parametersMap = new HashMap<String,String>();
+								
+						
+								Enumeration e = request.getParameterNames();
+								while(e.hasMoreElements()){
+									String parameterName = (String) e.nextElement();
+									parametersMap.put(parameterName,request.getParameter(parameterName));
+								}
+								
+								
+								out.println(admin_info.myStudySpace.db.addInviteeAndDisplayPage(parametersMap));	
+								
 							%>
 						</table>
 					</form>

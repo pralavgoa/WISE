@@ -6,8 +6,8 @@
 <!--link rel="stylesheet" href="style.css" type="text/css"-->
 <link rel="stylesheet" href="styleRender?app=&css=style.css" type="text/css">
 </head>
-<body>
-<!-- <body bgcolor="#FFFFCC" text="#000000"> -->
+
+<body bgcolor="#FFFFCC" text="#000000">
 <center>
 <table width="100%" border="0" cellspacing=2 cellpadding=3>
 	<tr>
