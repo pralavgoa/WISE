@@ -19,6 +19,7 @@ import edu.ucla.wise.commons.WISE_Application;
 public class repeating_set_read_input extends HttpServlet {
     static final long serialVersionUID = 1000;
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse res)
 	    throws ServletException, IOException {
 
@@ -68,8 +69,6 @@ public class repeating_set_read_input extends HttpServlet {
 	String repeat_table_row = req.getParameter("repeat_table_row");
 	String repeat_table_row_name = req
 		.getParameter("repeat_table_row_name");
-	System.out.println("Name of repeat table: " + repeat_table_name);
-	System.out.println("Repeat table row is: " + repeat_table_row);
 	// get all the fields values from the request and save them in the hash
 	// table
 	Hashtable<String, String> params = new Hashtable<String, String>();
@@ -80,8 +79,6 @@ public class repeating_set_read_input extends HttpServlet {
 	while (e.hasMoreElements()) {
 	    name = (String) e.nextElement();
 	    value = req.getParameter(name);
-	    System.out.println(name);
-	    System.out.println(value);
 	    if (!name.contains("repeat_table_name")
 		    && !name.contains("repeat_table_row")
 		    && !name.contains("repeat_table_row_name")) {
@@ -114,8 +111,6 @@ public class repeating_set_read_input extends HttpServlet {
 	// get database connection
 	User_DB_Connection user_db_connection = theUser.getMyDataBank();
 
-	System.out.println(params);
-	System.out.println(param_types);
 	// send the table name and values to the database
 	user_db_connection.insert_update_row_repeating_table(table_name,
 		row_id, row_name, params, param_types);

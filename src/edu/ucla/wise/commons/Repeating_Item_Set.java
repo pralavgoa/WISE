@@ -78,7 +78,7 @@ public class Repeating_Item_Set extends Page_Item {
     public String render_repeating_item_set(User i_user, int item_index) {
 	StringBuffer html_content = new StringBuffer("");
 	
-	if (cond != null) {
+	if (pre_condition != null) {
 	    html_content.append("<script>");
 	    html_content.append("page_function_array[\"q" + item_index
 		    + "\"]");
@@ -96,7 +96,7 @@ public class Repeating_Item_Set extends Page_Item {
 	// html_content.append(get_javascript_html());
 	html_content.append("<div id=q" + item_index
 		+ " class='repeating_item_set'");
-	if (cond != null) {
+	if (pre_condition != null) {
 	    // check if the value of data meets the precondition
 	    boolean write_question = cond.check_condition(i_user);
 	    // if it doesn't meet the precondition, skip writing this question
@@ -107,29 +107,31 @@ public class Repeating_Item_Set extends Page_Item {
 	}
 	html_content.append('>');
 	
-	// html_content.append("<h2 id = 'remove' href='#' class='repeating_question'>"
-	// +get_name_for_repeating_set()+" Information</h2>");
-	// html_content.append("<h2>" +
-	// "Add a "+get_name_for_repeating_set()+" </h2>");
+	html_content.append("<div id='repeating_set_with_id_"
+		+ get_name_for_repeating_set()
+		+ "'>");
+
 	html_content
 		.append("<div style='display: block; background-color:#353535;'>");
 	html_content
 		.append("<input type='text' class='repeat_item_name span3' placeholder='Enter "
 			+ get_name_for_repeating_set() + "' />");
 	html_content
-		.append("<a href='#' class='add_repeat_instance btn btn-primary btn-medium'>Add</a>");
+		.append("<a href='#' class='add_repeat_instance_name_button btn btn-primary btn-medium'>Add</a>");
 	html_content.append("</div>");
-	html_content.append("<div class='add_item_to_repeating_set'>");
+	html_content
+		.append("<div class='add_item_to_repeating_set' style='display:none'>");
 	for (int i = 0; i < item_set.size(); i++) {
 	    html_content.append(item_set.get(i).render_form(i_user,
 		    100 * item_index + i));// 100 is multiplied to get diff div
 					   // id, not good
 	}
 	html_content
-		.append("<a href='#' class='repeat_item_save'><b>Save this item</b></a>");
+		.append("<a href='#' class='add_repeat_item_save_button'><b>Save this item</b></a>");
 	html_content.append("</div>");
 	html_content.append("<div class = 'repeating_question' Name="
 		+ get_name_for_repeating_set() + ">");
+	html_content.append("</div>");
 	html_content.append("</div>");
 	html_content.append("</div>");
 	return html_content.toString();
@@ -153,6 +155,7 @@ public class Repeating_Item_Set extends Page_Item {
 		    // about this!!!
     }
 
+    @Override
     public String render_form(User i_user, int item_index) {
 	return render_repeating_item_set(i_user, item_index);
     }

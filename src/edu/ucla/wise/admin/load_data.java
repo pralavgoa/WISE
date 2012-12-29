@@ -3,9 +3,9 @@ package edu.ucla.wise.admin;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -35,6 +36,10 @@ import edu.ucla.wise.commons.WISE_Application;
 import edu.ucla.wise.commons.WiseConstants;
 
 public class load_data extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
+
+    static Logger log = Logger.getLogger(load_data.class);
 
     private AdminInfo admin_info = null;
 
@@ -275,12 +280,12 @@ public class load_data extends HttpServlet {
 	    out.println("The data has been successfully uploaded and input into database");
 	} catch (IOException err) {
 	    // catch possible io errors from readLine()
-	    System.out.println("CVS parsing: IOException error!");
+	    log.error("CVS parsing: IOException error!");
 	    err.printStackTrace();
 	}
     }
 
-    // public void handle_uploaded_file(File f, JspWriter out, Statement stmt)
+    @Override
     public void service(HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException
 
@@ -321,10 +326,9 @@ public class load_data extends HttpServlet {
 	xml_temp_loc = System.getProperty("os.name").toLowerCase()
 		.contains("window") ? xml_temp_loc.substring(1,
 		xml_temp_loc.length()) : xml_temp_loc;
-	System.out.println(xml_temp_loc);
 	File xml_dir = new File(xml_temp_loc);
 	if (!xml_dir.isDirectory())
-	    System.out.println("Not a directory");
+	    log.error("Not a directory");
 	xml_temp_loc = xml_dir.getAbsolutePath()
 		+ System.getProperty("file.separator");
 	file_loc = xml_temp_loc;
@@ -360,48 +364,9 @@ public class load_data extends HttpServlet {
 		    || (file_type.indexOf("jpg") != -1)
 		    || (file_type.indexOf("jpeg") != -1)
 		    || (file_type.indexOf("gif") != -1)) {
-		Connection conn = null;
-		PreparedStatement psmnt = null;
-		FileInputStream fis = null;
-		try {
-		    // open database connection
-		    conn = admin_info.getDBConnection();
-		    File f = multi.getFile("file");
-		    psmnt = conn
-			    .prepareStatement("DELETE FROM wisefiles where filename ="
-				    + "'" + filename + "'");
-		    int s1 = psmnt.executeUpdate();
-		    psmnt = conn
-			    .prepareStatement("INSERT INTO wisefiles(filename,filecontents,upload_date)"
-				    + "VALUES (?,?,?)");
-		    psmnt.setString(1, filename);
-		    fis = new FileInputStream(f);
-		    psmnt.setBinaryStream(2, (InputStream) fis,
-			    (int) (f.length()));
-		    java.util.Date currentDate = new java.util.Date();
-		    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
-			    "yyyy-MM-dd HH:mm:ss");
-		    String currentDateString = sdf.format(currentDate);
-		    psmnt.setString(3, currentDateString);
-		    int s2 = psmnt.executeUpdate();
-		} catch (Exception e) {
-		    e.printStackTrace();
-		} finally {
-		    conn.close();
-		    fis.close();
-		}
-		/*********************************************/
-		// File f = multi.getFile("file");
-		//
-		// if (filename.equalsIgnoreCase("print.css"))
-		// f1 = new File(css_path + "print.css");
-		// else
-		// f1 = new File(css_path + "style.css");
-		//
-		// // move the file to css_path directory
-		// f1.delete();
-		// f.renameTo(f1);
-		/********************************************/
+
+		saveFileToDatabase(multi, filename, "wisefiles");
+
 		out.println("<p>The style sheet named " + filename
 			+ " has been successfully uploaded.</p>");
 	    } else {
@@ -425,6 +390,9 @@ public class load_data extends HttpServlet {
 			String fn = process_survey_file(doc, out, stmt);
 
 			if (!fn.equalsIgnoreCase("NONE")) {
+
+			    saveFileToDatabase(multi, fn, "xmlfiles");
+
 			    File f = multi.getFile("file");
 			    f1 = new File(file_loc
 				    + System.getProperty("file.separator") + fn);
@@ -455,6 +423,9 @@ public class load_data extends HttpServlet {
 			break;
 		    } else if (n.getNodeName().equalsIgnoreCase("Preface")) {
 			fname = "preface.xml";
+
+			saveFileToDatabase(multi, fname, "xmlfiles");
+
 			File f = multi.getFile("file");
 			f1 = new File(file_loc + fname);
 			f.renameTo(f1);
@@ -479,7 +450,7 @@ public class load_data extends HttpServlet {
 			response.sendRedirect(remoteURL);
 			break;
 		    }
-		}
+			}
 		stmt.close();
 		conn.close();
 	    }// else
@@ -489,7 +460,7 @@ public class load_data extends HttpServlet {
 		    "WISE - ADMIN load_data.jsp: " + e.toString(), e);
 	    out.println("<h3>Invalid XML document submitted.  Please try again.</h3>");
 	    out.println("<p>Error: " + e.toString() + "</p>");
-	}
+		}
 	out.println("<p><a href= tool.jsp>Return to Administration Tools</a></p>\n"
 		+ "		</center>\n" +
 		// <!-- <p>AdminInfo dump:
@@ -498,6 +469,50 @@ public class load_data extends HttpServlet {
 		// css_path [admin_info.study_css_path]: <%=css_path%>
 		// image_path [admin_info.study_image_path]: <%=image_path%>
 		"		</pre>\n" + "</p>\n" + "</body>\n" + "</html>");
+    }
+
+    private void saveFileToDatabase(MultipartRequest multi, String filename,
+	    String tableName) {
+	Connection conn = null;
+	PreparedStatement psmnt = null;
+	FileInputStream fis = null;
+	try {
+	    // open database connection
+	    conn = admin_info.getDBConnection();
+
+	    String studySpaceName = admin_info.study_name;
+
+	    File f = multi.getFile("file");
+	    psmnt = conn.prepareStatement("DELETE FROM " + studySpaceName
+ + "."
+		    + tableName + " where filename =" + "'" + filename + "'");
+	    int s1 = psmnt.executeUpdate();
+	    psmnt = conn.prepareStatement("INSERT INTO " + studySpaceName
+ + "."
+		    + tableName + "(filename,filecontents,upload_date)"
+		    + "VALUES (?,?,?)");
+	    psmnt.setString(1, filename);
+	    fis = new FileInputStream(f);
+	    psmnt.setBinaryStream(2, fis, (int) (f.length()));
+	    java.util.Date currentDate = new java.util.Date();
+	    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
+		    "yyyy-MM-dd HH:mm:ss");
+	    String currentDateString = sdf.format(currentDate);
+	    psmnt.setString(3, currentDateString);
+	    int s2 = psmnt.executeUpdate();
+
+	    conn.close();
+	} catch (SQLException e) {
+
+	    log.error("Could not save the xml file to the database", e);
+
+	} catch (FileNotFoundException e) {
+
+	    log.error("Could not find the file to save", e);
+
+	} finally {
+
+	}
     }
 
 }

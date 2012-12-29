@@ -18,6 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import edu.ucla.wise.initializer.StudySpaceParametersProvider;
+import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
+
 /*
  Admin information set -- 
  The class represents that Admin application
@@ -34,10 +37,10 @@ import org.apache.log4j.Logger;
  */
 public class AdminInfo extends WISE_Application {
 
-    private Logger log = Logger.getLogger(AdminInfo.class);
+    private final Logger log = Logger.getLogger(AdminInfo.class);
 
     public static String db_backup_path, style_root_path, image_root_path;
-    private static Hashtable loggedIn = new Hashtable();
+    private static Hashtable<String, String> loggedIn = new Hashtable<String, String>();
 
     /* instance variables -- represent an individual administrator session */
     public Study_Space myStudySpace;
@@ -106,14 +109,32 @@ public class AdminInfo extends WISE_Application {
      * */
 
     /** constructor to create an Admin user session */
-    public AdminInfo(String username, String password_given) {
-	db_pwd = sharedProps.getString(username + ".dbpass");
+    public AdminInfo(String username, String password_given)
+	    throws IllegalArgumentException {
+
+
+	StudySpaceParameters params = StudySpaceParametersProvider
+		.getInstance().getStudySpaceParameters(username);
+
+	if (params == null) {
+	    log_info("params object is null");
+	    throw new IllegalArgumentException();
+	}
+
+	db_pwd = params.getDatabasePassword();
+	// 20dec db_pwd = sharedProps.getString(username + ".dbpass");
+
+	log_info("Given password is " + password_given
+		+ " and actual password is " + db_pwd);
+
 	pw_valid = password_given.equalsIgnoreCase(db_pwd);
 	if (pw_valid)
 	    try {
 		// get other properties TODO: GET THESE FROM DATA_BANK
 		study_name = username;
-		study_id = sharedProps.getString(username + ".studyid");
+		study_id = params.getId();
+		// 20dec study_id = sharedProps.getString(username +
+		// ".studyid");
 		// get or instantiate the Study_Space, which contains the
 		// Data_Bank for db access
 		myStudySpace = Study_Space.get_Space(study_id);
@@ -131,12 +152,14 @@ public class AdminInfo extends WISE_Application {
 
 		// record Admin user login
 		loggedIn.put(study_name, study_id);
+		log_info("Study name and study id inserted in loggedIn");
 	    } catch (Exception e) {
 		log_error("AdminInfo Constructor (login) Error: " + e, e);
 	    }
     }
 
     // finalize() called by garbage collector to clean up all objects
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    loggedIn.remove(study_name);
@@ -199,7 +222,7 @@ public class AdminInfo extends WISE_Application {
 	    outputString += "</td></tr>";
 
 	    // get the message from the message sequence hash
-	    Message m = (Message) msg_seq.get_type_message(msg_type);
+	    Message m = msg_seq.get_type_message(msg_type);
 	    if (m == null) {
 		log_info("ADMIN INFO - PRINT MESSAGE BODY: Can't get the message from sequence hash");
 		return null;
@@ -895,7 +918,7 @@ public class AdminInfo extends WISE_Application {
 	int sum = 0;
 	for (int i = char_id.length() - 1; i >= 0; i--) {
 	    char c = char_id.charAt(i);
-	    int remainder = (int) c - 65;
+	    int remainder = c - 65;
 	    sum = sum * 26 + remainder;
 	}
 

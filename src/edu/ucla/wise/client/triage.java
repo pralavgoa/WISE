@@ -28,6 +28,7 @@ public class triage extends HttpServlet {
 		+ "</script></head>" + "<body></body>" + "</html>";
     }
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse res)
 	    throws ServletException, IOException {
 	// prepare for writing
@@ -38,7 +39,6 @@ public class triage extends HttpServlet {
 	HttpSession session = req.getSession(true);
 
 	if (session.isNew()) {
-	    System.out.println("Session is new?");
 	    res.sendRedirect(Surveyor_Application.shared_file_url + "error"
 		    + Surveyor_Application.html_ext);
 	    return;

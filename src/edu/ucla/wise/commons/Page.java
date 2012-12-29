@@ -325,19 +325,27 @@ public class Page {
 	}
 
 	s += "<center>";
+	s += "<a href=\"javascript:top.mainFrame.form.document.mainform.action.value='interrupt';";
+	s += "top.mainFrame.form.document.mainform.submit();\">";
+	s += "<img src='"
+		+ "imageRender?img=save.gif' alt='save' style='margin:1ex'>";
+	s += "</a>";
 	s += "<a href='javascript:check_and_submit();'>";
 	// display the next/done image
 	if ((survey.is_last_page(id)) || (final_page)) {
 	    if (survey.edu_module != null
 		    && !survey.edu_module.equalsIgnoreCase(""))
 		// Servlet to render
-		s += "<img src='" + "imageRender?img=proceed.gif' border='0'>";
+		s += "<img src='"
+			+ "imageRender?img=proceed.gif' style='margin:1ex'>";
 	    else
 		// Servlet to render
-		s += "<img src='" + "imageRender?img=done.gif' border='0'>";
+		s += "<img src='"
+			+ "imageRender?img=done.gif' style='margin:1ex'>";
 	} else {
 	    // Servlet to render
-	    s += "<img src='" + "imageRender?img=next.gif' border='0'>";
+	    s += "<img src='"
+		    + "imageRender?img=save_and_next_page.gif' alt='save and next page' style='margin:1ex'>";
 	}
 	s += "</a>";
 	s += "</center>";
@@ -811,6 +819,7 @@ public class Page {
 
     /** print overview of the page contents */
 
+    @Override
     public String toString() {
 	String s = "<B>-=Page=-  </B> ";
 	s += "ID: " + id + "; ";

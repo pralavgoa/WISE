@@ -104,6 +104,7 @@ public class WISE_Application {
 	    password = pword;
 	}
 
+	@Override
 	protected PasswordAuthentication getPasswordAuthentication() {
 	    return new PasswordAuthentication(userName, password);
 	}
@@ -247,7 +248,7 @@ public class WISE_Application {
 	int sum = 0;
 	for (int i = char_id.length() - 1; i >= 0; i--) {
 	    char c = char_id.charAt(i);
-	    int remainder = (int) c - 65;
+	    int remainder = c - 65;
 	    sum = sum * 26 + remainder;
 	}
 

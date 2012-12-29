@@ -20,12 +20,14 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.log4j.Logger;
+
+import com.google.common.base.Strings;
 
 import edu.ucla.wise.commons.InviteeMetadata.Values;
 import edu.ucla.wise.commons.User.INVITEE_FIELDS;
+import edu.ucla.wise.initializer.StudySpaceParametersProvider;
+import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
 /**
  * This class encapsulates the database interface for a Study Space. The static
@@ -76,14 +78,21 @@ public class Data_Bank {
 
     public Data_Bank(Study_Space ss) {
 	study_space = ss;
-	dbuser = WISE_Application.sharedProps.getString(ss.study_name
-		+ ".dbuser");
-	dbdata = WISE_Application.sharedProps.getString(ss.study_name
-		+ ".dbname");
-	dbpwd = WISE_Application.sharedProps.getString(ss.study_name
-		+ ".dbpass");
-	email_encryption_key = WISE_Application.sharedProps
-		.getString(ss.study_name + ".dbCryptKey");
+
+	StudySpaceParameters params = StudySpaceParametersProvider
+		.getInstance().getStudySpaceParameters(ss.study_name);
+	dbuser = params.getDatabaseUsername();
+	dbdata = params.getDatabaseName();
+	//20dec dbuser = WISE_Application.sharedProps.getString(ss.study_name
+	//	+ ".dbuser");
+	//20dec dbdata = WISE_Application.sharedProps.getString(ss.study_name
+	//	+ ".dbname");
+	dbpwd = params.getDatabasePassword();
+	// 20dec dbpwd = WISE_Application.sharedProps.getString(ss.study_name
+	//	+ ".dbpass");
+	email_encryption_key = params.getDatabaseEncryptionKey();
+	//email_encryption_key = WISE_Application.sharedProps
+	//	.getString(ss.study_name + ".dbCryptKey");
     }
 
     // get list of current survey xml files and request loading of each by
@@ -165,33 +174,24 @@ public class Data_Bank {
 		.get_repeating_item_sets();
 
 	for (Repeating_Item_Set repeat_set_instance : repeating_item_sets) {
-	    System.out.println("Repeating table creation");
 	    // generate a table for this instance
 	    create_repeating_set_table(repeat_set_instance);
 	}
-
-	System.out.println("Repeating table creation done");
 
 	// "create_string" contains just the core syntax representing the survey
 	// fields; can test for changes by comparing this
 	String new_create_str = "";// old_create_str;
 	String[] fieldList = survey.get_fieldList();
 
-	System.out.println("Creating SURVEY data table with field list:");
-	for(String field : fieldList){
-	    System.out.print(field + ", ");  
-	}
-
-
 	char[] valTypeList = survey.get_valueTypeList();
 	for (int i = 0; i < fieldList.length; i++){
 	    if(fieldList[i]!=null){
-		    if (valTypeList[i] == textValueTypeFlag)
-			new_create_str += fieldList[i] + textFieldDDL;
-		    else if (valTypeList[i] == decimalValueTypeFlag)
-			new_create_str += fieldList[i] + decimalFieldDDL;
-		    else
-			new_create_str += fieldList[i] + intFieldDDL;
+		if (valTypeList[i] == textValueTypeFlag)
+		    new_create_str += fieldList[i] + textFieldDDL;
+		else if (valTypeList[i] == decimalValueTypeFlag)
+		    new_create_str += fieldList[i] + decimalFieldDDL;
+		else
+		    new_create_str += fieldList[i] + intFieldDDL;
 	    }
 
 	    // DON'T chop trailing comma as it precedes rest of DDL string:
@@ -256,10 +256,9 @@ public class Data_Bank {
 		sql_m += "PRIMARY KEY (invitee),";
 		sql_m += "FOREIGN KEY (invitee) REFERENCES invitee(id) ON DELETE CASCADE";
 		sql_m += ") ";
-		
-		System.out.println("Create table statement is:");
-		System.out.println(sql_m);
-		
+
+		log.info("Create table statement is:" + sql_m);
+
 		stmt_m.execute(sql_m);
 
 		// add the new survey record back in the table of surveys, and
@@ -303,20 +302,15 @@ public class Data_Bank {
     }
 
     public void create_repeating_set_table(Repeating_Item_Set i_repeating_set) {
+
 	String table_name = i_repeating_set.get_name_for_repeating_set();
 
-	//archiveTable("repeat_set_"+table_name);
+	archiveTable("repeat_set_" + table_name);
 
 	String sql_field_list = "";//
 	String[] fieldList = i_repeating_set.listFieldNames();
 
-	for (String field_name : fieldList) {
-	    System.out.println("Create repeat set field list:" + field_name);
-	}
 	char[] valTypeList = i_repeating_set.getValueTypeList();
-	for (char val_type : valTypeList) {
-	    System.out.println("Create repeat set field list:" + val_type);
-	}
 	for (int i = 0; i < fieldList.length; i++) {
 	    if (valTypeList[i] == textValueTypeFlag)
 		sql_field_list += fieldList[i] + textFieldDDL;
@@ -335,7 +329,7 @@ public class Data_Bank {
 	    sql_statement = "CREATE TABLE "
 		    + "repeat_set_"
 		    + table_name
-		    + " (instance int(6) not null auto_increment, invitee int(6) not null,";
+		    + " (instance int(6) not null auto_increment, invitee int(6) not null, instance_name text null, ";
 	    sql_statement += sql_field_list;
 	    sql_statement += "PRIMARY KEY (instance),";
 	    sql_statement += "FOREIGN KEY (invitee) REFERENCES invitee(id) ON DELETE CASCADE";
@@ -559,9 +553,9 @@ public class Data_Bank {
 	    // sort the two array list
 	    Collections.sort(old_columns);
 
-	    int i, j;
+	    int i;
 	    // compare with the two array list
-	    List<String> common_columns = new ArrayList();
+	    List<String> common_columns = new ArrayList<String>();
 	    // and put the common columns into the common data set array list
 	    for (String old_str : old_columns) {
 		if (new_columns.contains(old_str.toUpperCase())
@@ -596,7 +590,7 @@ public class Data_Bank {
 	    sql = "insert into " + survey.id + MainTableExtension
 		    + " (invitee, status,";
 	    for (i = 0; i < common_columns.size(); i++) {
-		sql += (String) common_columns.get(i);
+		sql += common_columns.get(i);
 		if (i != (common_columns.size() - 1))
 		    sql += ", ";
 	    }
@@ -605,7 +599,7 @@ public class Data_Bank {
 		    + survey.id + "_arch_" + archive_date + ".status, ";
 	    for (i = 0; i < common_columns.size(); i++) {
 		sql += survey.id + "_arch_" + archive_date + ".";
-		sql += (String) common_columns.get(i);
+		sql += common_columns.get(i);
 		if (i != (common_columns.size() - 1))
 		    sql += ", ";
 	    }
@@ -1486,16 +1480,16 @@ public class Data_Bank {
 	return strBuff.toString();
     }
 
-    public String addInviteeAndDisplayPage(HttpServletRequest request) {
-	return handle_addInvitees(request, true);
+    public String addInviteeAndDisplayPage(Map requestParameters) {
+	return handle_addInvitees(requestParameters, true);
     }
 
-    public int addInviteeAndReturnUserId(HttpServletRequest request) {
-	return Integer.parseInt(handle_addInvitees(request, false));
+    public int addInviteeAndReturnUserId(Map requestParameters) {
+	return Integer.parseInt(handle_addInvitees(requestParameters, false));
     }
 
     /** run database to handle input and also print table for adding invitees */
-    private String handle_addInvitees(HttpServletRequest request,
+    private String handle_addInvitees(Map<String, String> requestParameters,
 	    boolean showNextPage) {
 	String errStr = "", resStr = "";
 	int userId = 0;
@@ -1510,14 +1504,14 @@ public class Data_Bank {
 	    // get the column names of the table of invitee
 	    stmt.execute("describe invitee");
 	    ResultSet rs = stmt.getResultSet();
-	    boolean submit = (request.getParameter("submit") != null);
+	    boolean submit = (requestParameters.get("submit") != null);
 	    while (rs.next()) {
 		// read col name from database, matching col value from input
 		// request
 		String column_name = rs.getString("Field");
 		if (column_name.equalsIgnoreCase("id"))
 		    continue;
-		String column_val = request.getParameter(column_name);
+		String column_val = requestParameters.get(column_name);
 		String column_type = rs.getString("Type");
 		resStr += "<tr><td width=400 align=left>" + column_name;
 		// check for required field values
@@ -1576,13 +1570,13 @@ public class Data_Bank {
 	    // with values
 	    if (!errStr.equals(""))
 		resStr += "<tr><td align=center>Required fields " + errStr
-		+ " not filled out </td></tr>";
+			+ " not filled out </td></tr>";
 	    else if (submit) {
 		sql = sql_ins.substring(0, sql_ins.length() - 1) + ") "
 			+ sql_val.substring(0, sql_val.length() - 1) + ")";
 		stmt.execute(sql);
 		resStr += "<tr><td align=center>New invitee "
-			+ request.getParameter("lastname")
+			+ requestParameters.get("last_name")
 			+ " has been added</td></tr>";
 	    }
 	    // display the submit button
@@ -1599,8 +1593,8 @@ public class Data_Bank {
 	    }
 
 	} catch (Exception e) {
-	    AdminInfo
-	    .log_error("WISE ADMIN - LOAD INVITEE: " + e.toString(), e);
+	    WISE_Application.log_error(
+		    "WISE ADMIN - LOAD INVITEE: " + e.toString(), e);
 	    resStr += "<p>Error: " + e.toString() + "</p>";
 	    return resStr;
 	} finally {
@@ -1616,6 +1610,74 @@ public class Data_Bank {
 	return showNextPage ? resStr : String.valueOf(userId);
     }
 
+    /*
+     * Pralav public String addInviteeAndDisplayPage(HttpServletRequest request)
+     * { return handle_addInvitees(request, true); }
+     * 
+     * public int addInviteeAndReturnUserId(HttpServletRequest request) { return
+     * Integer.parseInt(handle_addInvitees(request, false)); }
+     * 
+     * /** run database to handle input and also print table for adding invitees
+     */
+    /*
+     * Pralav private String handle_addInvitees(HttpServletRequest request,
+     * boolean showNextPage) { String errStr = "", resStr = ""; int userId = 0;
+     * // connect to the database Connection conn = null; Statement stmt = null;
+     * try { conn = getDBConnection(); stmt = conn.createStatement(); String
+     * sql, sql_ins = "insert into invitee(", sql_val = "values(";
+     * 
+     * // get the column names of the table of invitee
+     * stmt.execute("describe invitee"); ResultSet rs = stmt.getResultSet();
+     * boolean submit = (request.getParameter("submit") != null); while
+     * (rs.next()) { // read col name from database, matching col value from
+     * input // request String column_name = rs.getString("Field"); if
+     * (column_name.equalsIgnoreCase("id")) continue; String column_val =
+     * request.getParameter(column_name); String column_type =
+     * rs.getString("Type"); resStr += "<tr><td width=400 align=left>" +
+     * column_name; // check for required field values if
+     * (column_name.equalsIgnoreCase(User.INVITEE_FIELDS.lastname .name()) ||
+     * (showNextPage && column_name .equalsIgnoreCase(User.INVITEE_FIELDS.email
+     * .name()))) { resStr += " (required)"; if (submit &&
+     * CommonUtils.isEmpty(column_val)) errStr += "<b>" + column_name + "</b> ";
+     * } resStr += ": <input type='text' name='" + column_name + "' "; if
+     * (column_name.equalsIgnoreCase(User.INVITEE_FIELDS.salutation .name()))
+     * resStr += "maxlength=5 size=5 "; else resStr += "maxlength=64 size=40 ";
+     * if (submit) { resStr += "value='" + column_val + "'"; // add submitted
+     * sql_ins += column_name + ","; if
+     * (column_name.equalsIgnoreCase(User.INVITEE_FIELDS.email .name())) { if
+     * (CommonUtils.isEmpty(column_val) || column_val.equalsIgnoreCase("null"))
+     * { column_val = WISE_Application.alert_email; } sql_val += "AES_ENCRYPT('"
+     * + column_val + "','" + email_encryption_key + "'),"; } else if
+     * (column_name .equalsIgnoreCase(User.INVITEE_FIELDS.irb_id.name())) {
+     * sql_val += "\"" + (CommonUtils.isEmpty(column_val) ? "" : column_val) +
+     * "\","; } else if (column_name
+     * .equalsIgnoreCase(User.INVITEE_FIELDS.salutation .name())) { sql_val +=
+     * "\"" + (CommonUtils.isEmpty(column_val) ? "Mr." : column_val) + "\","; }
+     * else { if (column_type.toLowerCase().contains("int")) { sql_val += "\"" +
+     * (CommonUtils.isEmpty(column_val) ? "0" : column_val) + "\","; } else {
+     * sql_val += "\"" + (CommonUtils.isEmpty(column_val) ? "" : column_val) +
+     * "\","; } } } resStr += "></td></tr>"; } // run the insertion if all the
+     * required fields have been filled in // with values if
+     * (!errStr.equals("")) resStr += "<tr><td align=center>Required fields " +
+     * errStr + " not filled out </td></tr>"; else if (submit) { sql =
+     * sql_ins.substring(0, sql_ins.length() - 1) + ") " + sql_val.substring(0,
+     * sql_val.length() - 1) + ")"; stmt.execute(sql); resStr +=
+     * "<tr><td align=center>New invitee " + request.getParameter("lastname") +
+     * " has been added</td></tr>"; } // display the submit button resStr +=
+     * "<tr><td align=center>" +
+     * "<input type='hidden' name='submit' value='true' >" +
+     * "<input type='image' alt='submit' src='admin_images/submit.gif' border=0>"
+     * + "</td></tr>"; if (!showNextPage) {
+     * stmt.execute("select last_insert_id()"); rs = stmt.getResultSet(); if
+     * (rs.next()) { userId = rs.getInt(1); } }
+     * 
+     * } catch (Exception e) { AdminInfo
+     * .log_error("WISE ADMIN - LOAD INVITEE: " + e.toString(), e); resStr +=
+     * "<p>Error: " + e.toString() + "</p>"; return resStr; } finally { try {
+     * stmt.close(); } catch (SQLException e) { } try { conn.close(); } catch
+     * (SQLException e) { } } return showNextPage ? resStr :
+     * String.valueOf(userId); }
+     */
     public String getCurrentSurveyIdString() {
 
 	Connection conn = null;
@@ -1729,15 +1791,32 @@ public class Data_Bank {
 	}
     }
 
-    public InputStream getFileFromDatabase(String cssFileName) {
+    /*
+     * public InputStream getFileFromDatabase(String cssFileName) { Connection
+     * conn = null; PreparedStatement pstmnt = null; InputStream is = null;
+     * 
+     * try { conn = getDBConnection(); String querySQL =
+     * "SELECT filecontents FROM wisefiles WHERE filename = '" + cssFileName +
+     * "'"; pstmnt = conn.prepareStatement(querySQL); ResultSet rs =
+     * pstmnt.executeQuery();
+     * 
+     * while (rs.next()) { is = rs.getBinaryStream(1); } } catch (SQLException
+     * e) { e.printStackTrace();
+     * log.error("Error while retrieving file from database"); } catch
+     * (Exception e) { e.printStackTrace(); } finally { try { conn.close(); }
+     * catch (SQLException e) { e.printStackTrace(); } } return is; }
+     */
+
+    public InputStream getFileFromDatabase(String fileName,
+	    String studySpaceName) {
 	Connection conn = null;
 	PreparedStatement pstmnt = null;
 	InputStream is = null;
 
 	try {
 	    conn = getDBConnection();
-	    String querySQL = "SELECT filecontents FROM wisefiles WHERE filename = '"
-		    + cssFileName + "'";
+	    String querySQL = "SELECT filecontents FROM " + studySpaceName
+		    + ".wisefiles WHERE filename = '" + fileName + "'";
 	    pstmnt = conn.prepareStatement(querySQL);
 	    ResultSet rs = pstmnt.executeQuery();
 
@@ -1757,6 +1836,33 @@ public class Data_Bank {
 	    }
 	}
 	return is;
+    }
+
+    public InputStream getXmlFileFromDatabase(String fileName,
+	    String studySpaceName) {
+	Connection connection = null;
+	PreparedStatement prepStmt = null;
+	InputStream inputStream = null;
+
+	if (Strings.isNullOrEmpty(studySpaceName)) {
+	    log.error("No study space name  provided");
+	    return null;
+	}
+
+	try{
+	    connection = getDBConnection();
+	    String querySQL = "SELECT filecontents FROM "+studySpaceName+".xmlfiles WHERE filename='"+fileName+"'";
+	    prepStmt = connection.prepareStatement(querySQL);
+	    ResultSet resultSet = prepStmt.executeQuery();
+
+	    while (resultSet.next()) {
+		inputStream = resultSet.getBinaryStream(1);
+	    }
+	} catch (SQLException e) {
+	    e.printStackTrace();
+	    log.error("Error while retrieving file from database");
+	}
+	return inputStream;
     }
 
 }

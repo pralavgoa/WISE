@@ -15,8 +15,8 @@ import org.apache.log4j.Logger;
 // nice thing tho is that STATUS is given back alongside the main data
 public class User_DB_Connection {
     public User theUser = null;
-    private String surveyID;
-    private String mainTable_name;
+    private final String surveyID;
+    private final String mainTable_name;
     private Data_Bank db;
     private Connection conn = null;
     Logger log = Logger.getLogger(User_DB_Connection.class);
@@ -68,6 +68,7 @@ public class User_DB_Connection {
     }
 
     // finalize() called by garbage collector to clean up all objects
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    conn.close();
@@ -445,9 +446,11 @@ public class User_DB_Connection {
 		}
 
 	    }
-	    // remove the last comma
-	    javascript_array_response.deleteCharAt(javascript_array_response
-		    .length() - 1);
+	    if (javascript_array_response.length() > 2) {
+		// remove the last comma
+		javascript_array_response
+			.deleteCharAt(javascript_array_response.length() - 1);
+	    }
 	    javascript_array_response.append("}");
 	    stmt.close();
 

@@ -30,6 +30,7 @@ public class save_anno_user extends HttpServlet {
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
      *      response)
      */
+    @Override
     protected void doGet(HttpServletRequest request,
 	    HttpServletResponse response) throws ServletException, IOException {
 	// TODO Auto-generated method stub
@@ -39,6 +40,7 @@ public class save_anno_user extends HttpServlet {
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
      *      response)
      */
+    @Override
     protected void doPost(HttpServletRequest request,
 	    HttpServletResponse response) throws ServletException, IOException {
 
@@ -54,7 +56,8 @@ public class save_anno_user extends HttpServlet {
 	/**
 	 * 1. Adding the New User
 	 */
-	int userId = theStudy.db.addInviteeAndReturnUserId(request);
+	int userId = theStudy.db.addInviteeAndReturnUserId(request
+		.getParameterMap());
 
 	/**
 	 * 2. Sending the New User initial invite

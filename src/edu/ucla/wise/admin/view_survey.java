@@ -17,6 +17,7 @@ import edu.ucla.wise.commons.WiseConstants;
 public class view_survey extends HttpServlet {
     static final long serialVersionUID = 1000;
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse res)
 	    throws ServletException, IOException {
 	// prepare for writing
@@ -56,7 +57,6 @@ public class view_survey extends HttpServlet {
 	    String new_url = admin_info.getStudyServerPath()
 		    + WiseConstants.ADMIN_APP + "/admin_view_form?SID="
 		    + admin_info.study_id + "&a=FIRSTPAGE&s=" + survey_id;
-	    System.out.println(new_url);
 	    res.sendRedirect(new_url);
 
 	} catch (Exception e) {

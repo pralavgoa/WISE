@@ -7,11 +7,16 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
+
+import edu.ucla.wise.initializer.StudySpaceParametersProvider;
+import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
 /**
  * Study space is the core of WISE system -- represents the core abstractions
@@ -20,9 +25,12 @@ import org.w3c.dom.Document;
 
 public class Study_Space {
     /** CLASS STATIC VARIABLES */
-    private static Hashtable ALL_SPACE; // contains actual study spaces indexed
+    private static Hashtable<String, Study_Space> ALL_SPACE; // contains actual
+							     // study spaces
+							     // indexed
 					// by name
-    private static Hashtable SPACE_names; // contains index of all study names
+    private static Hashtable<String, String> SPACE_names; // contains index of
+							  // all study names
 					  // in the properties file by ID
     // NOTE: Properties are read once at startup, therefore must restart server
     // if a Study Space is added
@@ -32,7 +40,7 @@ public class Study_Space {
     public static String font = "<font face='Verdana, Arial, Helvetica, sans-serif' size='-1'>";
 
     /** INSTANCE VARIABLES */
-    public Hashtable surveys;
+    public Hashtable<String, Survey> surveys;
     public Preface preface;
 
     public String id; // the study_space's number, which can be encoded
@@ -53,8 +61,8 @@ public class Study_Space {
 
     /** static initializer */
     static {
-	ALL_SPACE = new Hashtable();
-	SPACE_names = new Hashtable();
+	ALL_SPACE = new Hashtable<String, Study_Space>();
+	SPACE_names = new Hashtable<String, String>();
 	// better not to parse all ss's in advance
 	// Load_Study_Spaces();
     }
@@ -67,6 +75,17 @@ public class Study_Space {
 	// but does reread props file to enable load of new studies
 	// TODO (low): consider a private "stub" class to hold all values from
 	// props file without parsing XML file
+	
+	Map<String,StudySpaceParameters> allSpaceParams = StudySpaceParametersProvider.getInstance().getStudySpaceParametersMap();
+	
+	Iterator<String> allSpaceParamsItr = allSpaceParams.keySet().iterator();
+
+	while (allSpaceParamsItr.hasNext()) {
+	    String spaceName = allSpaceParamsItr.next();
+	    SPACE_names.put(allSpaceParams.get(spaceName).getId(), spaceName);
+	}
+	WISE_Application.log_info("study space setup complete");
+	/*
 	Enumeration enu = WISE_Application.sharedProps.getKeys();
 	while (enu.hasMoreElements()) {
 	    String key = (String) enu.nextElement();
@@ -78,6 +97,8 @@ public class Study_Space {
 		SPACE_names.put(idNum, study_name);
 	    }
 	}
+	
+	*/
     }
 
     /** search by the numeric study ID and return the Study_Space instance */
@@ -87,9 +108,9 @@ public class Study_Space {
 		    "GET Study Space failure - hash uninitialized. Try server restart on "
 			    + WISE_Application.rootURL + ", "
 			    + Surveyor_Application.ApplicationName, null);
-	Study_Space ss = (Study_Space) ALL_SPACE.get(studyID);
+	Study_Space ss = ALL_SPACE.get(studyID);
 	if (ss == null) {
-	    String sName = (String) SPACE_names.get(studyID);
+	    String sName = SPACE_names.get(studyID);
 	    if (sName != null) {
 		ss = new Study_Space(sName);
 		// put Study_Space in ALL_SPACE
@@ -105,15 +126,21 @@ public class Study_Space {
 	try {
 	    if (SPACE_names == null || SPACE_names.size() < 1)
 		return "Error: No Study Spaces found in props file";
-	    // get study space info from shared properties
-	    Enumeration enu = SPACE_names.keys();
-	    while (enu.hasMoreElements()) {
-		studyID = (String) enu.nextElement();
-		study_name = (String) SPACE_names.get(studyID);
-		String studySvr = WISE_Application.sharedProps
-			.getString(study_name + ".server");
-		String studyApp = WISE_Application.sharedProps
-			.getString(study_name + ".serverApp");
+
+	    Map<String, StudySpaceParameters> allSpaceParams = StudySpaceParametersProvider
+		    .getInstance().getStudySpaceParametersMap();
+
+	    Iterator<String> allSpaceNameItr = allSpaceParams.keySet()
+		    .iterator();
+
+	    while (allSpaceNameItr.hasNext()) {
+
+		String spaceName = allSpaceNameItr.next();
+		
+		String studySvr = allSpaceParams.get(spaceName).getServerUrl();
+		String studyApp = allSpaceParams.get(spaceName)
+			.getServerApplication();
+		
 		if (studySvr.equalsIgnoreCase(WISE_Application.rootURL)
 			&& studyApp
 				.equalsIgnoreCase(Surveyor_Application.ApplicationName)
@@ -125,7 +152,25 @@ public class Study_Space {
 		    resultstr += "Loaded Study Space: " + ss.id + " for user "
 			    + ss.db.dbuser + " <BR>\n";
 		}
+
 	    }
+
+	    /*
+	     * 20dec // get study space info from shared properties Enumeration
+	     * enu = SPACE_names.keys(); while (enu.hasMoreElements()) { studyID
+	     * = (String) enu.nextElement(); study_name =
+	     * SPACE_names.get(studyID); String studySvr =
+	     * WISE_Application.sharedProps .getString(study_name + ".server");
+	     * String studyApp = WISE_Application.sharedProps
+	     * .getString(study_name + ".serverApp"); if
+	     * (studySvr.equalsIgnoreCase(WISE_Application.rootURL) && studyApp
+	     * .equalsIgnoreCase(Surveyor_Application.ApplicationName) &&
+	     * study_name != null && !study_name.equals("")) { // create new
+	     * Study_Space Study_Space ss = new Study_Space(study_name); // put
+	     * Study_Space in ALL_SPACE ALL_SPACE.put(ss.id, ss); resultstr +=
+	     * "Loaded Study Space: " + ss.id + " for user " + ss.db.dbuser +
+	     * " <BR>\n"; } }
+	     */
 	} catch (Exception e) {
 	    WISE_Application.log_error("Load Study Spaces Error for ID "
 		    + studyID + ", name " + study_name + "\n" + e, e);
@@ -144,31 +189,47 @@ public class Study_Space {
 	    return;
 	study_name = studyName;
 	String filename = "";
+
+	StudySpaceParameters spaceParams = StudySpaceParametersProvider
+		.getInstance().getStudySpaceParameters(studyName);
+
 	try {
 	    // Construct instance variables for this particular study space
-	    id = WISE_Application.sharedProps.getString(studyName + ".studyid");
-	    title = WISE_Application.sharedProps.getString(studyName
-		    + ".proj.title");
+	    id = spaceParams.getId();
+	    // 20dec id = WISE_Application.sharedProps.getString(studyName +
+	    // ".studyid");
+	    title = spaceParams.getProjectTitle();
+	    // 20dec title = WISE_Application.sharedProps.getString(studyName
+	    // + ".proj.title");
 
 	    // SET UP all of the paths that will apply for this Study Space,
 	    // regardless of the app instantiating it
-	    server_url = WISE_Application.sharedProps.getString(studyName
-		    + ".server");
-	    String dir_in_props = WISE_Application.sharedProps
-		    .getString(studyName + ".dirName");
+	    server_url = spaceParams.getServerUrl();
+	    // 20dec server_url =
+	    // WISE_Application.sharedProps.getString(studyName
+	    // + ".server");
+	    String dir_in_props = spaceParams.getFolderName();
+	    // 20decString dir_in_props = WISE_Application.sharedProps
+	    // .getString(studyName + ".dirName");
 	    if (dir_in_props == null)
 		dir_name = study_name; // default
 	    else
 		dir_name = dir_in_props;
-	    application = WISE_Application.sharedProps.getString(studyName
-		    + ".serverApp");
+	    application = spaceParams.getServerApplication();
+	    // 20dec application =
+	    // WISE_Application.sharedProps.getString(studyName
+	    // + ".serverApp");
 	    app_urlRoot = server_url + "/" + application + "/";
 	    // Manoj changes
 	    // servlet_urlRoot = server_url + "/"+ application + "/servlet/";
 	    servlet_urlRoot = server_url + "/" + application + "/";
+
 	    sharedFile_urlRoot = app_urlRoot
-		    + WISE_Application.sharedProps.getString(studyName
-			    + ".sharedFiles_linkName") + "/";
+		    + spaceParams.getSharedFiles_linkName() + "/";
+
+	    // 20dec sharedFile_urlRoot = app_urlRoot
+	    // + WISE_Application.sharedProps.getString(studyName
+	    // + ".sharedFiles_linkName") + "/";
 
 	    // project-specific styles and images need to be in shared area so
 	    // they can be uploaded by admin server
@@ -179,7 +240,7 @@ public class Study_Space {
 		    + "/preface.xml";
 	    load_preface();
 	    // create the message sender
-	    surveys = new Hashtable();
+	    surveys = new Hashtable<String, Survey>();
 	    db = new Data_Bank(this); // one DB per SS
 	    db.readSurveys();
 	} catch (Exception e) {
@@ -195,10 +256,10 @@ public class Study_Space {
 	    n_spaces = ALL_SPACE.size();
 	}
 	Study_Space[] result = new Study_Space[n_spaces];
-	Enumeration et = Study_Space.ALL_SPACE.elements();
+	Enumeration<Study_Space> et = Study_Space.ALL_SPACE.elements();
 	int i = 0;
 	while (et.hasMoreElements() && i < n_spaces) {
-	    result[i++] = (Study_Space) et.nextElement();
+	    result[i++] = et.nextElement();
 	}
 	return result;
     }
@@ -225,7 +286,7 @@ public class Study_Space {
 
     /** search by the survey ID and returns a specific survey */
     public Survey get_Survey(String survey_id) {
-	Survey s = (Survey) surveys.get(survey_id);
+	Survey s = surveys.get(survey_id);
 	return s;
     }
 
@@ -515,6 +576,7 @@ public class Study_Space {
 
     /** prints a specific study space */
 
+    @Override
     public String toString() {
 	String s = "STUDY SPACE<br>";
 	s += "ID: " + id + "<br>";
@@ -525,9 +587,9 @@ public class Study_Space {
 	// print surveys
 	s += "<hr>SURVEYS<BR>";
 	Survey svy;
-	Enumeration e1 = surveys.elements();
+	Enumeration<Survey> e1 = surveys.elements();
 	while (e1.hasMoreElements()) {
-	    svy = (Survey) e1.nextElement();
+	    svy = e1.nextElement();
 	    s += svy.toString();
 	}
 
