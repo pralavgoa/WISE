@@ -21,11 +21,14 @@ public class Question_Block_forSubjectSet extends Question_Block {
     // Condition is a precondition to apply for the subject set
     public Condition ss_cond;
 
+    private String[] subjectSetLabels;
+    private String[] stemFieldNames;
+
     /**
      * constructor: parse a question block node that has a subject set reference
      */
-    // note: subject_set strings copied into inherited "stems" array
-    // field names copied into inherieted stem_fieldNames array as
+    // note: subject_set strings copied into inherited "subjectSetLabels" array
+    // field names copied into inherieted stemFieldNames array as
     // QuestionID_SubjectName (with replacemt of spaces and dashes)
 
     public Question_Block_forSubjectSet(Node n) {
@@ -64,18 +67,21 @@ public class Question_Block_forSubjectSet extends Question_Block {
 	}
     }
 
+    @Override
     public void knitRefs(Survey mySurvey) {
 	super.knitRefs(mySurvey);
 	try {
 	    if (subjectSet_ID != null) {
 		subject_set = mySurvey.get_subject_set(subjectSet_ID);
 		// declare the stem name & value arrays
-		stems = subject_set.subject_labels;
-		stem_fieldNames = new String[subject_set.subject_count];
+
+		subjectSetLabels = subject_set.subject_labels;
+		stemFieldNames = new String[subject_set.subject_count];
+
 		// construct field names as: QuestionName+suffix, delegated to
 		// SS [should be "_ID"]
 		for (int k = 0; k < subject_set.subject_count; k++) {
-		    stem_fieldNames[k] = name
+		    stemFieldNames[k] = name
 			    + subject_set.get_fieldName_suffix(k);
 		}
 	    }
@@ -160,6 +166,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
     // return "";
     // }
 
+    @Override
     public Hashtable read_form(Hashtable params) {
 	Hashtable answers = super.read_form(params);
 	answers.put("__SubjectSet_ID__", subjectSet_ID);
@@ -180,16 +187,16 @@ public class Question_Block_forSubjectSet extends Question_Block {
 	}
 
 	// check the precondition vector for the subject set reference
-	boolean[] ss_cond_vector = new boolean[stem_fieldNames.length];
+	boolean[] ss_cond_vector = new boolean[stemFieldNames.length];
 	// if the subject set reference has the precondition defined
 	if (ss_cond != null) {
 	    boolean any_true = false;
 	    // check if the precondition is met by calculating the comparison
 	    // result
 	    ss_cond_vector = ss_cond.check_condition(subjectSet_ID,
-		    stem_fieldNames, theUser);
+		    stemFieldNames, theUser);
 	    // render each stem of the question block
-	    for (int i = 0; i < stems.length; i++) {
+	    for (int i = 0; i < subjectSetLabels.length; i++) {
 		// if the current stem meets the precondition, then it will be
 		// displayed
 		if (ss_cond_vector[i]) {
@@ -207,26 +214,26 @@ public class Question_Block_forSubjectSet extends Question_Block {
 	// if there is a precondition defined for subject set, test vector for
 	// each stem
 	if (ss_cond != null) {
-	    for (int i = 0; i < stems.length; i++) {
+	    for (int i = 0; i < subjectSetLabels.length; i++) {
 		// if the current stem meets the precondition, then display it
 		if (ss_cond_vector[i])
-		    s += render_stems(i);
+		    s += render_subjectSetLabels(i);
 	    }
 	}
-	// otherwise, display stems without testing
+	// otherwise, display subjectSetLabels without testing
 	else {
-	    for (int i = 0; i < stems.length; i++)
-		s += render_stems(i);
+	    for (int i = 0; i < subjectSetLabels.length; i++)
+		s += render_subjectSetLabels(i);
 	}
 	s += "</table>";
 	return s;
     }
 
     /**
-     * render the subject stems which meet the precondition defined in subject
-     * set reference
+     * render the subject subjectSetLabels which meet the precondition defined
+     * in subject set reference
      */
-    public String render_stems(int i) {
+    public String render_subjectSetLabels(int i) {
 	String s = "";
 	// render each stem of the question block
 	int startV = Integer.parseInt(response_set.startvalue);
@@ -238,7 +245,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
 	    s += "<tr class=\"shaded-bg\">";
 	else
 	    s += "<tr class=\"unshaded-bg\">";
-	s += "<td>" + Study_Space.font + stems[i] + "</font></td>";
+	s += "<td>" + Study_Space.font + subjectSetLabels[i] + "</font></td>";
 
 	if (levels == 0) {
 	    for (int j = startV, k = 0; j < len + startV; j++, k++) {
@@ -246,14 +253,14 @@ public class Question_Block_forSubjectSet extends Question_Block {
 			.equalsIgnoreCase("-1")) {
 		    s += "<td><center>" + Study_Space.font;
 		    s += "<input type='radio' name='"
-			    + stem_fieldNames[i].toUpperCase() + "' value='"
+			    + stemFieldNames[i].toUpperCase() + "' value='"
 			    + num + "'>";
 		    s += "</center></font></td>";
 		    num = num + 1;
 		} else {
 		    s += "<td><center>" + Study_Space.font;
 		    s += "<input type='radio' name='"
-			    + stem_fieldNames[i].toUpperCase() + "' value='"
+			    + stemFieldNames[i].toUpperCase() + "' value='"
 			    + response_set.values.get(k) + "'>";
 		    s += "</center></font></td>";
 		    num = num + 1;
@@ -263,7 +270,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
 	    for (int j = 1; j <= levels; j++) {
 		s += "<td><center>" + Study_Space.font;
 		s += "<input type='radio' name='"
-			+ stem_fieldNames[i].toUpperCase() + "' value='" + num
+			+ stemFieldNames[i].toUpperCase() + "' value='" + num
 			+ "'>";
 		s += "</center></font></td>";
 		num = num + 1;
@@ -273,6 +280,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
     }
 
     /** render RESULTS for a subject set question block */
+    @Override
     public String render_results(Page pg, Data_Bank db, String whereclause,
 	    Hashtable data) {
 
@@ -281,15 +289,16 @@ public class Question_Block_forSubjectSet extends Question_Block {
 
 	String s = render_QB_result_header();
 
-	// display each of the stems on the left side of the block
-	for (int i = 0; i < stems.length; i++) {
+	// display each of the subjectSetLabels on the left side of the block
+	for (int i = 0; i < subjectSetLabels.length; i++) {
 	    s += "<tr>";
 	    int tnull = 0;
 	    int t = 0;
 	    float avg = 0;
 	    Hashtable h1 = new Hashtable();
 	    // get the user's conducted data from the hashtable
-	    String subj_ans = (String) data.get(stem_fieldNames[i]
+	    String subj_ans = (String) data
+		    .get(stemFieldNames[i]
 		    .toUpperCase());
 
 	    String t1, t2;
@@ -311,7 +320,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
 			    + SubjectSet_name
 			    + "_data"
 			    + " where subject="
-			    + stem_fieldNames[i].substring((stem_fieldNames[i]
+			    + stemFieldNames[i].substring((stemFieldNames[i]
 				    .lastIndexOf("_") + 1)) + " and invitee="
 			    + user_id;
 		    boolean dbtype = stmt.execute(sql);
@@ -330,7 +339,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
 			+ pg.survey.id + "'";
 		sql += " and p.page='" + pg.id + "'";
 		sql += " and s.subject="
-			+ stem_fieldNames[i].substring((stem_fieldNames[i]
+			+ stemFieldNames[i].substring((stemFieldNames[i]
 				.lastIndexOf("_") + 1));
 		if (!whereclause.equalsIgnoreCase(""))
 		    sql += " and s." + whereclause;
@@ -359,7 +368,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
 		if (!hasSubjectSetRef) {
 		    // get values from the survey data table
 		    // calculate the average answer level
-		    sql = "select round(avg(" + stem_fieldNames[i]
+		    sql = "select round(avg(" + stemFieldNames[i]
 			    + "),1) from " + pg.survey.id
 			    + "_data as s, page_submit as p"
 			    + " where s.invitee=p.invitee and p.page='" + pg.id
@@ -378,7 +387,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
 			    + pg.survey.id + "'";
 		    sql += " and p.page='" + pg.id + "'";
 		    sql += " and s.subject="
-			    + stem_fieldNames[i].substring((stem_fieldNames[i]
+			    + stemFieldNames[i].substring((stemFieldNames[i]
 				    .lastIndexOf("_") + 1));
 		    if (!whereclause.equalsIgnoreCase(""))
 			sql += " and s." + whereclause;
@@ -404,7 +413,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
 	    // if classified level is required for the question block
 	    if (levels == 0) {
 		s += "<td bgcolor=#FFCC99>";
-		s += stems[i] + "<p>";
+		s += subjectSetLabels[i] + "<p>";
 		s += "<div align='right'>";
 		s += "<font size='-2'><b><font color=green>mean: </font></b>"
 			+ avg;
@@ -468,7 +477,7 @@ public class Question_Block_forSubjectSet extends Question_Block {
 	    // if classified level is required for the question block
 	    else {
 		s += "<td bgcolor=#FFCC99>";
-		s += stems[i] + "<p>";
+		s += subjectSetLabels[i] + "<p>";
 		s += "<div align='right'>";
 		s += "<font size='-2'><b><font color=green>mean: </font></b>"
 			+ avg;
@@ -541,20 +550,21 @@ public class Question_Block_forSubjectSet extends Question_Block {
     /** returns a comma delimited list of all the fields on a page */
     /*
      * public String list_fields() { String s = ""; for (int i = 0; i <
-     * stems.length; i++) s += stem_fieldNames[i]+","; return s; }
+     * subjectSetLabels.length; i++) s += stemFieldNames[i]+","; return s; }
      */
 
     /** prints out the question block information */
+    @Override
     public String toString() {
 	String s = "QUESTION BLOCK for subject set<br>";
 	s += super.toString();
 
 	s += "Instructions: " + instructions + "<br>";
 	s += "Response Set: " + response_set.id + "<br>";
-	s += "Stems:<br>";
+	s += "subjectSetLabels:<br>";
 
-	for (int i = 0; i < stems.length; i++)
-	    s += stem_fieldNames[i] + ":" + stems[i] + "<br>";
+	for (int i = 0; i < subjectSetLabels.length; i++)
+	    s += stemFieldNames[i] + ":" + subjectSetLabels[i] + "<br>";
 	if (cond != null)
 	    s += cond.toString();
 	s += "<p>";

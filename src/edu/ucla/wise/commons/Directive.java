@@ -32,6 +32,20 @@ public class Directive extends Page_Item {
 		text = question_translated.text;
 	    } else {
 		Node node = n;
+
+		NodeList childNodes = node.getChildNodes();
+
+		for (int i = 0; i < childNodes.getLength(); i++) {
+
+		    Node childNode = childNodes.item(i);
+
+		    if (childNode.getNodeName()
+			    .equalsIgnoreCase("Precondition")) {
+			node.removeChild(childNode);
+		    }
+
+		}
+
 		Transformer transformer = TransformerFactory.newInstance()
 			.newTransformer();
 		StringWriter sw = new StringWriter();
@@ -56,14 +70,17 @@ public class Directive extends Page_Item {
 	}
     }
 
+    @Override
     public int countFields() {
 	return 0;
     }
 
+    @Override
     public void knitRefs(Survey mySurvey) {
 	html = make_html();
     }
 
+    @Override
     public String[] listFieldNames() {
 	return new String[0];
     }
@@ -82,6 +99,7 @@ public class Directive extends Page_Item {
     }
 
     /** print survey for directive item - used for admin tool: print survey */
+    @Override
     public String print_survey() {
 	String s = "<table cellspacing='0' cellpadding='0' width=100%' border='0'>";
 	s += "<tr>";

@@ -22,6 +22,7 @@ import edu.ucla.wise.commons.WISE_Application;
 public class setup_survey extends HttpServlet {
     static final long serialVersionUID = 1000;
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse res)
 	    throws ServletException, IOException {
 	// prepare for writing
@@ -115,6 +116,7 @@ public class setup_survey extends HttpServlet {
 		    .append("<title>Web-based Interactive Survey Environment (WISE)</title>");
 	    html_content
 		    .append("<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>"
+			    + "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>"
 			    + "<script type='text/javascript' language='javascript' src='"
 			    + Surveyor_Application.shared_file_url
 			    + "main.js'></script>"

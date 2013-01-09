@@ -12,6 +12,7 @@ public class Message {
     private static final String headerImgFilename = "email_header_img.jpg";
     private static final String footerImgFilename1 = "email_bottom_img1.jpg";
     private static final String footerImgFilename2 = "email_bottom_img2.jpg";
+    private static final String WISE_SHARED = "WiseShared";
     private static final String htmlOpen = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'></head>"
 	    + "<body bgcolor=#FFFFFF text=#000000><center>";
     private static final String htmlClose = "</center></body></html>";
@@ -116,7 +117,7 @@ public class Message {
     public void resolveRef(Preface myPreface) {
 	try {
 	    if (msg_ref != null) {
-		Message refd_msg = (Message) myPreface.get_message(msg_ref);
+		Message refd_msg = myPreface.get_message(msg_ref);
 		if (refd_msg.msg_ref == null) {
 		    main_body = refd_msg.main_body;
 		    has_link = refd_msg.has_link;
@@ -152,12 +153,10 @@ public class Message {
 		    + "<tr><td height=120 align=center><img src='"
 		    + WISE_Application.rootURL
 		    + "/"
-		    + Surveyor_Application.ApplicationName
-		    + "/"
-		    + WiseConstants.SURVEY_APP
-		    + "/imageRender?img="
+		    + WISE_SHARED
+		    + "/image?img="
 		    + headerImgFilename
-		    + "&app=dme'></td></tr>"
+		    + "'></td></tr>"
 		    + "<tr><td>"
 		    + "<table width=100% border=0 cellpadding=0 cellspacing=0>"
 		    + "<tr><td width=20>&nbsp;</td>"
@@ -174,21 +173,17 @@ public class Message {
 		    + "<td rowspan=2 height=110 width=105 align=left valign=bottom><img src=\""
 		    + WISE_Application.rootURL
 		    + "/"
-		    + Surveyor_Application.ApplicationName
-		    + "/"
-		    + WiseConstants.SURVEY_APP
-		    + "/imageRender?img="
+		    + WISE_SHARED
+		    + "/image?img="
 		    + footerImgFilename2
-		    + "&app=dme\"></td></tr>"
+		    + "\"></td></tr>"
 		    + "<tr><td height=30 width=370 align=center valign=bottom><img src='"
 		    + WISE_Application.rootURL
 		    + "/"
-		    + Surveyor_Application.ApplicationName
-		    + "/"
-		    + WiseConstants.SURVEY_APP
-		    + "/imageRender?img="
+		    + WISE_SHARED
+		    + "/image?img="
 		    + footerImgFilename1
-		    + "&app=dme'></td></tr>"
+		    + "'></td></tr>"
 		    + "</table></td></tr>"
 		    + "<tr><td width=500 height=1 bgcolor='#996600'></td></tr></table>\n\n";
 	}
@@ -296,6 +291,7 @@ public class Message {
 	return outputString;
     }
 
+    @Override
     public String toString() {
 	return "<P><B>Message</b> ID: " + id + "<br>\n" + "References: "
 		+ msg_ref + "<br>\n" + "Subject: " + subject + "<br>\n"

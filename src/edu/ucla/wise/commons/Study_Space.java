@@ -54,6 +54,7 @@ public class Study_Space {
     private String application;
     public String app_urlRoot, servlet_urlRoot;
     public String sharedFile_urlRoot, style_url, image_url;
+    public String emailSendingTime;
 
     public Data_Bank db; // one DB per SS
 
@@ -216,6 +217,8 @@ public class Study_Space {
 	    else
 		dir_name = dir_in_props;
 	    application = spaceParams.getServerApplication();
+
+	    emailSendingTime = spaceParams.getEmailSendingTime();
 	    // 20dec application =
 	    // WISE_Application.sharedProps.getString(studyName
 	    // + ".serverApp");

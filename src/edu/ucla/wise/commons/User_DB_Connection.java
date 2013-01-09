@@ -173,7 +173,7 @@ public class User_DB_Connection {
 		+ ") VALUES (" + theUser.id + "," + nextPage + values
 		+ ") ON DUPLICATE KEY UPDATE status=VALUES(status) "
 		+ updateStr;
-	System.out.println("The data storing sql is " + sql);
+	log.info("The data storing sql is " + sql);
 	try {
 	    stmt.execute(sql);
 	} catch (Exception e) {
@@ -352,7 +352,7 @@ public class User_DB_Connection {
 	sql_statement.append("");
 	sql_statement.append("");
 
-	System.out.println(sql_statement.toString());
+	log.info(sql_statement.toString());
 
 	Statement statement = null;
 	try {
@@ -393,7 +393,7 @@ public class User_DB_Connection {
 	    // pull all from current repeating set table
 	    String sql = "SELECT * from " + table_name + " WHERE invitee = "
 		    + theUser.id;
-	    System.out.println("The sql statement is:" + sql);
+	    log.info("The sql statement is:" + sql);
 	    boolean query_success = stmt.execute(sql);
 	    if (!query_success)
 		throw new Exception("SQL query failure!!! : " + sql);

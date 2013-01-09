@@ -70,7 +70,12 @@ public class AppImageRender extends HttpServlet {
 	    imageStream = db.getFileFromDatabase(image_name, app_name);
 	    if (imageStream != null) {
 		response.reset();
-		response.setContentType("image/jpg");
+		if (image_name.contains("gif")) {
+		    response.setContentType("image/gif");
+		} else {
+		    response.setContentType("image/jpg");
+		}
+
 		int count = 1;// initializing to a value > 0
 		while (count > 0) {
 		    count = imageStream.read(byte_buffer, 0, buffer_size);
@@ -79,7 +84,7 @@ public class AppImageRender extends HttpServlet {
 		}
 		response.getOutputStream().flush();
 	    } else {
-		WISE_Application.log_info("Fetching image from file system");
+		log.info("Fetching image from file system");
 		getImageFromFileSystem(response, image_name, app_name);
 	    }
 	} catch (IOException e) {

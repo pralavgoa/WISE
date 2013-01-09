@@ -193,9 +193,36 @@ function isblank(s)
 	return true;
 }
 
-var isARepeatingInstanceAddedGlobal = false;
-function check_and_submit() 
+
+function check_and_submit(){
+	var num_unsaved_rpt_sets = $(".unsaved").size();
+	
+	if(num_unsaved_rpt_sets==0){
+		check_and_submit_non_repeat();
+	}else{
+		//submit unsaved repeating sets
+		$(".unsaved").each(function(){
+			$(this).click();
+			num_unsaved_rpt_sets--;
+			if(num_unsaved_rpt_sets==0){
+				setTimeout(function() {
+					$(document).ajaxStop(check_and_submit_non_repeat());
+				}, 500);
+//				$.ajaxStop(function(){$(document).trigger("repeat_sets_saved");});
+				
+			}
+			
+		});
+	}
+
+}
+
+//$(document).bind("repeat_sets_saved", function() {check_and_submit_non_repeat();});
+
+//var isARepeatingInstanceAddedGlobal = false;
+function check_and_submit_non_repeat() 
 {
+/*
 	if(isARepeatingInstanceAddedGlobal){
 		var confirmNextPage = confirm("You have not saved your changes. Do you still want to proceed?");
 		
@@ -203,6 +230,8 @@ function check_and_submit()
 			return;
 		}
 	}
+
+*/
 	
 	var flag = 0;
 	if (top.requiredFields) 

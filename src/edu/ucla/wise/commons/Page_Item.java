@@ -55,24 +55,24 @@ public abstract class Page_Item {
 		for (int j = 0; j < nodelist2.getLength(); j++) {
 		    if (nodelist2.item(j).getNodeName()
 			    .equalsIgnoreCase("Numeric_Open_Response"))
-			item = (Page_Item) new Numeric_Open_Question(n);
+			item = new Numeric_Open_Question(n);
 		    else if (nodelist2.item(j).getNodeName()
 			    .equalsIgnoreCase("Text_Open_Response"))
-			item = (Page_Item) new Text_Open_Question(n);
+			item = new Text_Open_Question(n);
 		}
 	    } else if (nname.equalsIgnoreCase("Closed_Question")) {
-		item = (Page_Item) new Closed_Question(n);
+		item = new Closed_Question(n);
 	    } else if (nname.equalsIgnoreCase("Question_Block")) {
 		NodeList nodelist2 = n.getChildNodes();
 		for (int j = 0; j < nodelist2.getLength(); j++)
 		    if (nodelist2.item(j).getNodeName()
 			    .equalsIgnoreCase("Subject_Set_Ref"))
-			item = (Page_Item) new Question_Block_forSubjectSet(n);
-		item = (Page_Item) new Question_Block(n);
+			item = new Question_Block_forSubjectSet(n);
+		item = new Question_Block(n);
 	    } else if (nname.equalsIgnoreCase("Directive")) {
-		item = (Page_Item) new Directive(n);
+		item = new Directive(n);
 	    } else if (nname.equalsIgnoreCase("Repeating_Item_Set")) {
-		item = (Page_Item) new Repeating_Item_Set(n);
+		item = new Repeating_Item_Set(n);
 	    }
 	} catch (Exception e) {
 	    WISE_Application.log_error("PAGE ITEM Creation attempt failed for "
@@ -168,7 +168,7 @@ public abstract class Page_Item {
     }
 
     /** stub function which is overwritten by subclasses */
-    public Hashtable read_form(Hashtable params) {
+    public Hashtable<String, String> read_form(Hashtable<String, String> params) {
 	try {
 	    throw new Exception("read_form called on " + item_type + " " + name);
 	} catch (Exception e) {
@@ -243,6 +243,7 @@ public abstract class Page_Item {
     public abstract int countFields();
 
     /** prints out the name of the item */
+    @Override
     public String toString() {
 	String s = "Name: " + name + "<br>";
 	return s;

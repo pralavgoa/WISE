@@ -16,6 +16,9 @@ $(document).ready(function(){
 	//Get JSON from server for each repeating item set and display its instances
 
 
+	setTimeout(function() {
+		$("div.repeating_item_instance_details").hide('slow');
+	}, 1000);
 
 	$(".repeating_item_set").each(function(){
 
@@ -24,15 +27,14 @@ $(document).ready(function(){
 		var item_set_name = $(this).find(".repeating_question").last().attr("name");
 //		console.log("Repeating item set name is "+item_set_name);
 
+		//pass milliseconds to prevent IE caching issues with Ajax
+		var milliseconds = new Date().getTime();
 		//get the JSON object
-		$.getJSON("./repeating_item_io?repeat_table_name="+item_set_name, function(json_response) {
+		$.getJSON("./repeating_item_io?repeat_table_name="+item_set_name+"&"+"time="+milliseconds, function(json_response) {
 
 			add_repeating_set_instances(json_response, item_set_name);
-
-			hide_repeating_instances();
-
+			
 			$("body").removeClass("loading");
-
 		});
 
 		function add_repeating_set_instances(json_response, item_set_name){
@@ -189,6 +191,7 @@ $(document).ready(function(){
 		var instance_name_header = "<div class='instance_name'>"+instance_name+"</div>";
 		$(this).parent().parent().children(".add_item_to_repeating_set").find('.instance_name').remove();
 		$(this).parent().parent().children(".add_item_to_repeating_set").prepend(instance_name_header);
+		$(this).parent().parent().children(".add_item_to_repeating_set").find('.add_repeat_item_save_button').addClass('unsaved');
 		$(this).parent().parent().children(".add_item_to_repeating_set").show("slow");
 		return false;
 	});
@@ -197,6 +200,8 @@ $(document).ready(function(){
 	//---------------------------------------------------------------------------------------------------//
 	//Repeat item save is clicked in a particular instance of repeating item
 	$(".add_repeat_item_save_button").click(function () {
+		
+		$(this).removeClass("unsaved");
 		
 		//Clear the add repeat item save box
 		$(this).parent().siblings().find(".repeat_item_name").val('');
@@ -257,7 +262,7 @@ $(document).ready(function(){
 		add_html += "</div>";
 
 		//append this div to the repeating questions parent div
-		$("#repeating_set_with_id_"+item_set_name+" > .repeating_question > div.repeating_question").prepend(add_html);
+		$("#repeating_set_with_id_"+item_set_name+" > div.repeating_question").prepend(add_html);
 
 		var input_values = {};
 		$(this).parent().find(":input").each(function(){
@@ -307,8 +312,8 @@ $(document).ready(function(){
 	//minimize the repeating item_instance
 	function hide_repeating_instances()
 	{
-		$(".repeating_item_instance").each(function(){
-			$(this).next("div").hide("slow");
+		$("div.repeating_item_instance_details").each(function(){
+			$(this).hide("slow");
 		});
 
 		$(".add_item_to_repeating_set").hide("fast");

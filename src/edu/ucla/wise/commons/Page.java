@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -25,7 +26,7 @@ public class Page {
     public Page_Item[] items;
     public String[] all_fieldNames;
     public char[] all_valueTypes; // just 'a' for string, 'n' for numeric; may
-				  // add dates, PRN
+    // add dates, PRN
 
     // adding this to create tables when new survey is loaded
     public ArrayList<Repeating_Item_Set> repeating_items = new ArrayList<Repeating_Item_Set>();
@@ -39,6 +40,8 @@ public class Page {
     public Condition cond;
 
     int field_count; // for item count, get items.length
+
+    Logger log = Logger.getLogger(Page.class);
 
     /** CLASS FUNCTIONS */
 
@@ -76,8 +79,6 @@ public class Page {
 	    }
 	    // initialize the number of form field on the page
 	    NodeList nodelist = n.getChildNodes();
-
-	    System.out.println(nodelist);
 	    // count the number of page items
 	    int page_item_count = 0;
 	    field_count = 0;
@@ -86,9 +87,6 @@ public class Page {
 		    page_item_count++;
 	    }
 	    items = new Page_Item[page_item_count];
-
-	    System.out
-		    .println("The number of children are: " + page_item_count);
 
 	    // parse & store the page items and any precondition
 	    for (int i = 0, k = 0; i < nodelist.getLength(); i++) {
@@ -105,13 +103,11 @@ public class Page {
 			}
 			repeating_items.add(repeating_set);
 			items[k++] = repeating_set;
-			System.out.println("Page #2");
 		    } else {
 			Page_Item pi = Page_Item.MakeNewItem(node1);
 			if (pi == null)
 			    throw new Exception("Null item parse at " + k);
 			items[k++] = pi;
-			System.out.println("Page #2");
 		    }
 
 		} else if (node1.getNodeName().equalsIgnoreCase("Precondition")) {
@@ -130,8 +126,8 @@ public class Page {
 	    // consider also collecting main names & ss refs separately
 	    for (int i = 0; i < page_item_count; i++) {
 		items[i].knitRefs(survey); // note this req here as MultiSelect
-					   // Q field counts depend on refs
-					   // being resolved
+		// Q field counts depend on refs
+		// being resolved
 		field_count += items[i].countFields();
 	    }
 	    all_fieldNames = new String[field_count];
@@ -148,9 +144,9 @@ public class Page {
 			String fn = fieldnames[j];
 			all_fieldNames[all_start + j] = fn;
 			all_valueTypes[all_start + j] = valType; // if multiple
-								 // fields, copy
-								 // same valType
-								 // across all
+			// fields, copy
+			// same valType
+			// across all
 		    }
 		    all_start += j;
 		}
@@ -158,7 +154,6 @@ public class Page {
 	    }
 	    // Study_Util.email_alert("Completing Page "+ title
 	    // +" in survey "+survey.id+" in ss "+survey.study_space.location);
-	    System.out.println("End of one constructor call");
 	} catch (Exception e) {
 	    WISE_Application.log_error("WISE - survey parse failure at PAGE ["
 		    + id + "] " + e.toString() + "\n" + this.toString(), null);
@@ -167,7 +162,7 @@ public class Page {
     }
 
     public String[] get_fieldList() {
-	
+
 	//modifications to add repeating questions
 	return all_fieldNames;
     }
@@ -243,8 +238,10 @@ public class Page {
 	    // if it doesn't meet the precondition, then skip writing this whole
 	    // page
 	    // by return an empty string
-	//     if (!write_page)
-	//     return s;
+
+	    log.info("Precondition for page is " + write_page);
+	    // if (!write_page)
+	    // return s;
 	}
 
 	// get the field name:value pair for JavaScript
@@ -325,8 +322,8 @@ public class Page {
 	}
 
 	s += "<center>";
-	s += "<a href=\"javascript:top.mainFrame.form.document.mainform.action.value='interrupt';";
-	s += "top.mainFrame.form.document.mainform.submit();\">";
+	s += "<a href=\"javascript:document.forms['mainform'].action.value='interrupt';document.forms['mainform'].submit();";
+	s += "\">";
 	s += "<img src='"
 		+ "imageRender?img=save.gif' alt='save' style='margin:1ex'>";
 	s += "</a>";
@@ -464,7 +461,7 @@ public class Page {
 		sql += "'" + id + "') or status is null";
 		if (!whereclause.equalsIgnoreCase(""))
 		    sql += " and " + whereclause;
-		boolean dbtype = stmt.execute(sql);
+		stmt.execute(sql);
 		ResultSet rs = stmt.getResultSet();
 		if (rs.next())
 		    done_numb = rs.getInt(1);
@@ -664,20 +661,22 @@ public class Page {
      * read paramaeters passed from data source that apply to field names;
      * delegate value processing to each Page_Item that the page contains
      */
-    public Hashtable read_form(Hashtable params) {
-	Hashtable pageAnswerSets = new Hashtable();
+    public Hashtable<String, Hashtable<String, String>> read_form(
+	    Hashtable<String, String> params) {
+	Hashtable<String, Hashtable<String, String>> pageAnswerSets = new Hashtable<String, Hashtable<String, String>>();
 	if (all_fieldNames.length > 0) // don't bother if page is only
-				       // directivespage
+	// directivespage
 	{
-	    Hashtable mainAnswers = new Hashtable();
+	    Hashtable<String, String> mainAnswers = new Hashtable<String, String>();
 	    for (int i = 0; i < items.length; i++) {
-		Hashtable itemAnswers = items[i].read_form(params);
-		String ssid = (String) itemAnswers.get("__SubjectSet_ID__"); // subjectsets
-									     // push
-									     // their
-									     // id
-									     // into
-									     // hash
+		Hashtable<String, String> itemAnswers = items[i]
+			.read_form(params);
+		String ssid = itemAnswers.get("__SubjectSet_ID__"); // subjectsets
+		// push
+		// their
+		// id
+		// into
+		// hash
 		if (ssid != null) {
 		    itemAnswers.remove("__SubjectSet_ID__");
 		    pageAnswerSets.put(ssid, itemAnswers);

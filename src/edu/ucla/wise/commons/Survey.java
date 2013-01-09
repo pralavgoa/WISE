@@ -38,9 +38,9 @@ public class Survey {
     public String logo_name;
     public String invitee_fields[];
 
-    public Hashtable response_sets;
-    public Hashtable subject_sets;
-    public Hashtable translation_items;
+    public Hashtable<String, Response_Set> response_sets;
+    public Hashtable<String, Subject_Set> subject_sets;
+    public Hashtable<String, Translation_Item> translation_items;
     public InviteeMetadata inviteeMetadata;
     public Page[] pages;
     public Study_Space study_space;
@@ -160,7 +160,7 @@ public class Survey {
 	    }
 
 	    // parse out the response sets
-	    response_sets = new Hashtable();
+	    response_sets = new Hashtable<String, Response_Set>();
 	    nodelist = xml_doc.getElementsByTagName("Response_Set");
 	    for (int i = 0; i < nodelist.getLength(); i++) {
 		Node node = nodelist.item(i);
@@ -185,7 +185,7 @@ public class Survey {
 	    }
 
 	    // parse out the translation sets
-	    translation_items = new Hashtable();
+	    translation_items = new Hashtable<String, Translation_Item>();
 	    // nodelist = doc.getElementsByTagName("Translation");
 	    nodelist = xml_doc.getElementsByTagName("TranslationType");
 	    for (int i = 0; i < nodelist.getLength(); i++) {
@@ -195,7 +195,7 @@ public class Survey {
 	    }
 
 	    // parse out the subject sets
-	    subject_sets = new Hashtable();
+	    subject_sets = new Hashtable<String, Subject_Set>();
 	    nodelist = xml_doc.getElementsByTagName("Subject_Set");
 	    for (int i = 0; i < nodelist.getLength(); i++) {
 		Node n = nodelist.item(i);
@@ -245,7 +245,8 @@ public class Survey {
      * display the submenu on the left side of frame to show the survey progress
      * - the submenu won't let the user go back to review completed pages
      */
-    public String print_progress(Page currentPage, Hashtable completed_pages) {
+    public String print_progress(Page currentPage,
+	    Hashtable<String, String> completed_pages) {
 	String s = "";
 	try {
 	    s += "<html><head>";
@@ -281,7 +282,7 @@ public class Survey {
 
 	    for (int i = 0; i < pages.length; i++) {
 		s += "<tr>";
-		String page_status = (String) completed_pages.get(pages[i].id);
+		String page_status = completed_pages.get(pages[i].id);
 
 		if (page_status != null
 			&& page_status.equalsIgnoreCase("Completed"))
@@ -377,19 +378,19 @@ public class Survey {
 
     /** search by ID, return a specific Response_Set */
     public Response_Set get_response_set(String id) {
-	Response_Set a = (Response_Set) response_sets.get(id);
+	Response_Set a = response_sets.get(id);
 	return a;
     }
 
     /** search by ID, return a specific Subject_Set */
     public Subject_Set get_subject_set(String id) {
-	Subject_Set ss = (Subject_Set) subject_sets.get(id);
+	Subject_Set ss = subject_sets.get(id);
 	return ss;
     }
 
     /** search by ID, return a specific Translation */
     public Translation_Item get_translation_item(String id) {
-	Translation_Item t = (Translation_Item) translation_items.get(id);
+	Translation_Item t = translation_items.get(id);
 	return t;
     }
 
@@ -539,6 +540,7 @@ public class Survey {
 
     /** prints brief dump of survey structure */
 
+    @Override
     public String toString() {
 	String s = "<p><b>SURVEY</b><br>";
 	s += "ID: " + id + "<br>";

@@ -156,7 +156,7 @@ public class WISE_Application {
 	// images_path = sharedProps.getProperty("wise.images_path");
 	shared_files_link = localProps
 		.getString("default.sharedFiles_linkName");
-	log_info("images_path read is [" + images_path + "]");
+	log_info("images_path read is: " + images_path + "");
 	// WISE_Application.shared_file_url = rootURL +
 	// WISE_Application.ApplicationName + "/" +
 	// localProps.getProperty("default.sharedFiles_linkName") + "/";
