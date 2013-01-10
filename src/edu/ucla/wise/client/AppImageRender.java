@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,8 +30,7 @@ public class AppImageRender extends HttpServlet {
 
     /** Process the quiz request */
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-	    throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
 
 	String app_name = request.getParameter("app");
 	if (app_name == null)
@@ -87,13 +85,13 @@ public class AppImageRender extends HttpServlet {
 		log.info("Fetching image from file system");
 		getImageFromFileSystem(response, image_name, app_name);
 	    }
-	} catch (IOException e) {
-	    e.printStackTrace();
-	    log.error("File not found", e);
-	} finally {
+
 	    if (imageStream != null) {
 		imageStream.close();
 	    }
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    log.error("File not found", e);
 	}
 	/********************************************************/
 	/** Original non database code **/

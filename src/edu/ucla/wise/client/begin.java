@@ -3,7 +3,6 @@ package edu.ucla.wise.client;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,8 +22,11 @@ import edu.ucla.wise.commons.WiseConstants;
 public class begin extends HttpServlet {
     static final long serialVersionUID = 1000;
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse res)
-	    throws ServletException, IOException {
+	    throws IOException
+ {
+
 	res.setContentType("text/html");
 	PrintWriter out = res.getWriter();
 
@@ -111,7 +113,8 @@ public class begin extends HttpServlet {
 	// create a new User if none is already found in the session
 	if (theUser == null)
 	    theUser = theStudy.get_User(msgid);
-	// might double-check user's validity otherwise but need to write new fn
+	// might double-check user's validity otherwise but need to write
+	// new fn
 	// 'cause all we have is msgid not userid
 
 	// if the user can't be retrieved or created, send error info
@@ -140,24 +143,24 @@ public class begin extends HttpServlet {
 		    + "browser_check"
 		    + edu.ucla.wise.commons.Surveyor_Application.html_ext
 		    + "?w=" + Surveyor_Application.servlet_url + "start"; // pass
-									  // along
-									  // fully-resolved
-									  // address
-									  // of
-									  // triage
-									  // servlet
+	    // along
+	    // fully-resolved
+	    // address
+	    // of
+	    // triage
+	    // servlet
 	} else {
 	    System.err.println("servlet URL is "
 		    + Surveyor_Application.servlet_url);
 	    main_url = "file_test/" + "browser_check"
 		    + edu.ucla.wise.commons.Surveyor_Application.html_ext
 		    + "?w=" + Surveyor_Application.servlet_url + "start"; // pass
-									  // along
-									  // fully-resolved
-									  // address
-									  // of
-									  // triage
-									  // servlet
+	    // along
+	    // fully-resolved
+	    // address
+	    // of
+	    // triage
+	    // servlet
 	    WISE_Application.log_error("Main URL is [" + main_url + "]", null);
 	}
 	// Debugging statements
@@ -183,6 +186,7 @@ public class begin extends HttpServlet {
 		+ "error_javascript.htm'>");
 	out.println("</frameset><noframes></noframes></HTML>");
 	out.close();
-    }
+
+	    }
 
 }

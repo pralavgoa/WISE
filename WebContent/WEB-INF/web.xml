@@ -221,7 +221,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<servlet-name>thank_you_generate</servlet-name>
 		<servlet-class>edu.ucla.wise.client.thank_you_generate</servlet-class>
 	</servlet>
-		
+
 	<servlet>
 		<display-name>start</display-name>
 		<servlet-name>triage</servlet-name>
@@ -323,7 +323,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<servlet-name>index</servlet-name>
 		<servlet-class>edu.ucla.wise.client.index</servlet-class>
 	</servlet>
-	
+
 	<servlet>
 		<display-name>interview_login</display-name>
 		<servlet-name>interview_login</servlet-name>
@@ -397,7 +397,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<servlet-name>thank_you_generate</servlet-name>
 		<url-pattern>/survey/thank_you</url-pattern>
 	</servlet-mapping>
-		
+
 	<servlet-mapping>
 		<servlet-name>triage</servlet-name>
 		<url-pattern>/survey/start</url-pattern>
@@ -517,7 +517,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<display-name>Repeating_Item_IO</display-name>
 		<servlet-name>Repeating_Item_IO</servlet-name>
 		<servlet-class>edu.ucla.wise.client.repeating_item_set_io</servlet-class>
-	</servlet>	
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>Repeating_Item_IO</servlet-name>
 		<url-pattern>/survey/repeating_item_io</url-pattern>
@@ -526,20 +526,38 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 		<display-name>Repeating_Item_Read_Input</display-name>
 		<servlet-name>Repeating_Item_Read_Input</servlet-name>
 		<servlet-class>edu.ucla.wise.client.repeating_set_read_input</servlet-class>
-	</servlet>	
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>Repeating_Item_Read_Input</servlet-name>
 		<url-pattern>/survey/repeating_set_read_input</url-pattern>
 	</servlet-mapping>
-		<servlet>
+	<servlet>
 		<display-name>Repeating_Set_Control</display-name>
 		<servlet-name>Repeating_Set_Control</servlet-name>
 		<servlet-class>edu.ucla.wise.client.RepeatingItemHttpHandler</servlet-class>
-	</servlet>	
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>Repeating_Set_Control</servlet-name>
 		<url-pattern>/survey/repeating_set_control</url-pattern>
 	</servlet-mapping>
 
+
+	<!-- Error Pages Listings -->
+	<error-page>
+		<error-code>401</error-code>
+		<location>/general-error.html</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/general-error.html</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/general-error.html</location>
+	</error-page>
+	<error-page>
+		<error-code>503</error-code>
+		<location>/general-error.html</location>
+	</error-page>
 
 </web-app>
