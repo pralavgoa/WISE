@@ -112,9 +112,9 @@ public class Repeating_Item_Set extends Page_Item {
 		+ "'>");
 
 	html_content
-		.append("<div style='display: block; background-color:#353535;'>");
+.append("<div style='display: block;'>");
 	html_content
-		.append("<input type='text' class='repeat_item_name span3' placeholder='Enter "
+		.append("<input type='text' class='repeat_item_name span3' placeholder='Enter short name for a "
 			+ get_name_for_repeating_set() + "' />");
 	html_content
 		.append("<a href='#' class='add_repeat_instance_name_button btn btn-primary btn-medium'>Add</a>");
@@ -127,7 +127,12 @@ public class Repeating_Item_Set extends Page_Item {
 					   // id, not good
 	}
 	html_content
-		.append("<a href='#' class='add_repeat_item_save_button'><b>Save this item</b></a>");
+		.append("<div class='wrapper_for_add_cancel' style='display:block;text-align:center'>");
+	html_content
+		.append("<a href='#' class='add_repeat_item_save_button'>Add</a>");
+	html_content
+		.append("<a href='#' class='add_repeat_item_cancel_button'>Cancel</a>");
+	html_content.append("</div>");
 	html_content.append("</div>");
 	html_content.append("<div class = 'repeating_question' Name="
 		+ get_name_for_repeating_set() + ">");

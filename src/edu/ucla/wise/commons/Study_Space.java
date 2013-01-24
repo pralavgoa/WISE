@@ -1,5 +1,8 @@
 package edu.ucla.wise.commons;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,8 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
@@ -24,8 +30,11 @@ import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
  */
 
 public class Study_Space {
+
+    private static Logger log = Logger.getLogger(Study_Space.class);
+
     /** CLASS STATIC VARIABLES */
-    private static Hashtable<String, Study_Space> ALL_SPACE; // contains actual
+    private static Hashtable<String, Study_Space> ALL_SPACES; // contains actual
 							     // study spaces
 							     // indexed
 					// by name
@@ -62,7 +71,7 @@ public class Study_Space {
 
     /** static initializer */
     static {
-	ALL_SPACE = new Hashtable<String, Study_Space>();
+	ALL_SPACES = new Hashtable<String, Study_Space>();
 	SPACE_names = new Hashtable<String, String>();
 	// better not to parse all ss's in advance
 	// Load_Study_Spaces();
@@ -104,19 +113,20 @@ public class Study_Space {
 
     /** search by the numeric study ID and return the Study_Space instance */
     public static Study_Space get_Space(String studyID) {
-	if (SPACE_names == null || ALL_SPACE == null)
+	if (SPACE_names == null || ALL_SPACES == null)
 	    WISE_Application.log_error(
 		    "GET Study Space failure - hash uninitialized. Try server restart on "
 			    + WISE_Application.rootURL + ", "
 			    + Surveyor_Application.ApplicationName, null);
-	Study_Space ss = ALL_SPACE.get(studyID);
+	Study_Space ss = ALL_SPACES.get(studyID);
 	if (ss == null) {
 	    String sName = SPACE_names.get(studyID);
 	    if (sName != null) {
 		ss = new Study_Space(sName);
-		// put Study_Space in ALL_SPACE
-		ALL_SPACE.put(ss.id, ss);
+		// put Study_Space in ALL_SPACES
+		ALL_SPACES.put(ss.id, ss);
 	    }
+
 	}
 	return ss;
     }
@@ -148,8 +158,8 @@ public class Study_Space {
 			&& study_name != null && !study_name.equals("")) {
 		    // create new Study_Space
 		    Study_Space ss = new Study_Space(study_name);
-		    // put Study_Space in ALL_SPACE
-		    ALL_SPACE.put(ss.id, ss);
+		    // put Study_Space in ALL_SPACES
+		    ALL_SPACES.put(ss.id, ss);
 		    resultstr += "Loaded Study Space: " + ss.id + " for user "
 			    + ss.db.dbuser + " <BR>\n";
 		}
@@ -168,7 +178,7 @@ public class Study_Space {
 	     * .equalsIgnoreCase(Surveyor_Application.ApplicationName) &&
 	     * study_name != null && !study_name.equals("")) { // create new
 	     * Study_Space Study_Space ss = new Study_Space(study_name); // put
-	     * Study_Space in ALL_SPACE ALL_SPACE.put(ss.id, ss); resultstr +=
+	     * Study_Space in ALL_SPACES ALL_SPACES.put(ss.id, ss); resultstr +=
 	     * "Loaded Study Space: " + ss.id + " for user " + ss.db.dbuser +
 	     * " <BR>\n"; } }
 	     */
@@ -253,13 +263,13 @@ public class Study_Space {
     }
 
     public static Study_Space[] get_all() {
-	int n_spaces = ALL_SPACE.size();
+	int n_spaces = ALL_SPACES.size();
 	if (n_spaces < 1) {
 	    Load_Study_Spaces();
-	    n_spaces = ALL_SPACE.size();
+	    n_spaces = ALL_SPACES.size();
 	}
 	Study_Space[] result = new Study_Space[n_spaces];
-	Enumeration<Study_Space> et = Study_Space.ALL_SPACE.elements();
+	Enumeration<Study_Space> et = Study_Space.ALL_SPACES.elements();
 	int i = 0;
 	while (et.hasMoreElements() && i < n_spaces) {
 	    result[i++] = et.nextElement();
@@ -310,20 +320,47 @@ public class Study_Space {
 	    factory.setExpandEntityReferences(false);
 	    factory.setIgnoringComments(true);
 	    factory.setIgnoringElementContentWhitespace(true);
+
+	    /*
+	     * Document xml_doc = factory.newDocumentBuilder().parse(
+	     * CommonUtils.loadResource(file_loc));
+	     */
+
+	    log.info("Fetching survey file " + filename + " from database for "
+		    + study_name);
+	    InputStream surveyFileInputStream = db.getXmlFileFromDatabase(
+		    filename, study_name);
+
+	    if (surveyFileInputStream == null) {
+		throw new FileNotFoundException();
+	    }
+
 	    Document xml_doc = factory.newDocumentBuilder().parse(
-		    CommonUtils.loadResource(file_loc));
-	    System.out.println(xml_doc);
+		    surveyFileInputStream);
+
 	    s = new Survey(xml_doc, this);
 	    if (s != null) {
 		sid = s.id;
 		surveys.put(sid, s);
 	    }
-	} catch (Exception e) {
-	    WISE_Application.log_error("Study Space " + dir_name
+
+	} catch (FileNotFoundException e) {
+	    log.error("Study Space " + dir_name
 		    + " failed to parse survey " + filename + ". Error: " + e,
 		    e);
 	}
+ catch (SAXException e) {
+	    log.error("Study Space " + dir_name + " failed to parse survey "
+		    + filename + ". Error: " + e, e);
+	} catch (ParserConfigurationException e) {
+	    log.error("Study Space " + dir_name + " failed to parse survey "
+		    + filename + ". Error: " + e, e);
+	} catch (IOException e) {
+	    log.error("Study Space " + dir_name + " failed to parse survey "
+		    + filename + ". Error: " + e, e);
+	}
 	return sid;
+	
     }
 
     public void drop_Survey(String survey_id) {
@@ -514,8 +551,8 @@ public class Study_Space {
      * // parse all study elements in the config file NodeList nl =
      * doc.getElementsByTagName("Study"); for (int i = 0; i < nl.getLength();
      * i++) { // create new Study_Space Study_Space ss = new
-     * Study_Space(nl.item(i)); // put Study_Space in ALL_SPACE
-     * ALL_SPACE.put(ss.id,ss); }
+     * Study_Space(nl.item(i)); // put Study_Space in ALL_SPACES
+     * ALL_SPACES.put(ss.id,ss); }
      * 
      * } catch (Exception e) {
      * Study_Util.email_alert("WISE - STUDY SPACE - LOAD ALL STUDY SPACES: "
@@ -527,22 +564,22 @@ public class Study_Space {
     /*
      * public static String print_ALL() { Study_Space ss;
      * 
-     * String s = "ALL Study Spaces:<p>"; Enumeration e1 = ALL_SPACE.elements();
-     * while (e1.hasMoreElements()) { ss = (Study_Space) e1.nextElement(); s +=
-     * ss.print(); } s += "<p>"; return s; }
+     * String s = "ALL Study Spaces:<p>"; Enumeration e1 =
+     * ALL_SPACES.elements(); while (e1.hasMoreElements()) { ss = (Study_Space)
+     * e1.nextElement(); s += ss.print(); } s += "<p>"; return s; }
      */
     /** look up if the user and password exists in the list of study spaces */
     /*
      * public static String lookup_study_space(String u, String p) { Study_Space
-     * ss; Enumeration e1 = ALL_SPACE.elements(); while (e1.hasMoreElements()) {
-     * ss = (Study_Space) e1.nextElement(); if (ss.dbuser.equalsIgnoreCase(u))
+     * ss; Enumeration e1 = ALL_SPACES.elements(); while (e1.hasMoreElements())
+     * { ss = (Study_Space) e1.nextElement(); if (ss.dbuser.equalsIgnoreCase(u))
      * if (ss.dbpwd.equalsIgnoreCase(p)) return ss.id; } return null; }
      */
 
     /** returns if a specific Study_Space has been loaded */
     /*
      * public static boolean space_exists(String id) { Study_Space ss =
-     * (Study_Space) ALL_SPACE.get(id); if (ss == null) return false; else
+     * (Study_Space) ALL_SPACES.get(id); if (ss == null) return false; else
      * return true; }
      * 
      * /** constructor to initialize the surveys and messages hashtables

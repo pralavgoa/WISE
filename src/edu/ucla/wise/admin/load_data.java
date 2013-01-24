@@ -53,7 +53,6 @@ public class load_data extends HttpServlet {
 
 	String id, title;
 	String sql;
-	boolean dbtype;
 	String return_val;
 
 	try {
@@ -70,9 +69,9 @@ public class load_data extends HttpServlet {
 	    // get the latest survey's internal ID from the table of surveys
 	    sql = "select max(internal_id) from surveys where id = '" + id
 		    + "'";
-	    dbtype = stmt.execute(sql);
+	    stmt.execute(sql);
 	    ResultSet rs = stmt.getResultSet();
-	    boolean isn = rs.next();
+	    rs.next();
 	    String max_id = rs.getString(1);
 	    // initiate the survey status as "N"
 	    String status = "N";
@@ -83,9 +82,9 @@ public class load_data extends HttpServlet {
 	    if (max_id != null) {
 		sql = "select status from surveys where internal_id = "
 			+ max_id;
-		dbtype = stmt.execute(sql);
+		stmt.execute(sql);
 		rs = stmt.getResultSet();
-		isn = rs.next();
+		rs.next();
 		status = (rs.getString(1)).toUpperCase();
 	    }
 	    // if the survey status is in Developing or Production mode
@@ -103,11 +102,11 @@ public class load_data extends HttpServlet {
 			+ "\", '"
 			+ status
 			+ "', 'current')";
-		dbtype = stmt.execute(sql);
+		stmt.execute(sql);
 		// get the new inserted internal ID
 		// sql = "SELECT LAST_INSERT_ID() from surveys";
 		sql = "SELECT max(internal_id) from surveys";
-		dbtype = stmt.execute(sql);
+		stmt.execute(sql);
 		rs = stmt.getResultSet();
 		rs.next();
 		String new_id = rs.getString(1);
@@ -116,7 +115,7 @@ public class load_data extends HttpServlet {
 		// update the file name and uploading time in the table
 		sql = "UPDATE surveys SET filename = '" + filename
 			+ "', uploaded = now() WHERE internal_id = " + new_id;
-		dbtype = stmt.execute(sql);
+		stmt.execute(sql);
 		// display the processing information about the file name
 		out.println("<tr><td align=center>New version becomes the one with internal ID = "
 			+ id + "</td></tr>");
@@ -133,11 +132,11 @@ public class load_data extends HttpServlet {
 		// insert the new survey record
 		sql = "INSERT INTO surveys (id, title, status, archive_date) VALUES ('"
 			+ id + "',\"" + title + "\",'D','current')";
-		dbtype = stmt.execute(sql);
+		stmt.execute(sql);
 		// get the newly created internal ID
 		// sql = "SELECT LAST_INSERT_ID()";
 		sql = "SELECT max(internal_id) from surveys";
-		dbtype = stmt.execute(sql);
+		stmt.execute(sql);
 		rs = stmt.getResultSet();
 		rs.next();
 		String new_id = rs.getString(1);
@@ -145,7 +144,7 @@ public class load_data extends HttpServlet {
 		// update the file name and uploading time
 		sql = "UPDATE surveys SET filename = '" + filename
 			+ "', uploaded = now() WHERE internal_id = " + new_id;
-		dbtype = stmt.execute(sql);
+		stmt.execute(sql);
 		out.println("<tr><td align=center>New version becomes the one with internal ID = "
 			+ id + "</td></tr>");
 		return_val = filename;
@@ -276,7 +275,7 @@ public class load_data extends HttpServlet {
 	    sql = sql.substring(0, sql.length() - 2);
 
 	    // insert into the database
-	    boolean dbtype = stmt.execute(sql);
+	    stmt.execute(sql);
 	    out.println("The data has been successfully uploaded and input into database");
 	} catch (IOException err) {
 	    // catch possible io errors from readLine()
@@ -291,20 +290,6 @@ public class load_data extends HttpServlet {
 
     {
 	String path = request.getContextPath() + "/" + WiseConstants.ADMIN_APP;
-	String html = "<link rel=\"stylesheet\" href=\""
-		+ path
-		+ "/style.css\" type=\"text/css\">\n"
-		+ "	<title>WISE Administration Tools - Load</title>\n"
-		+ "	</head>\n"
-		+ "	<body text=\"#333333\" bgcolor=\"#FFFFCC\">\n"
-		+ "	<center>\n"
-		+ "	<table cellpadding=\"0\" cellspacing=\"0\" border=0>\n"
-		+ "		<tr>\n"
-		+ "			<td width=\"160\" align=center><img src=\"admin_images/somlogo.gif\"\n"
-		+ "				border=\"0\"></td>\n"
-		+ "			<td width=\"400\" align=\"center\"><img src=\"admin_images/title.jpg\"\n"
-		+ "				border=\"0\"></td>\n" + "		</tr>\n" + "	</table>";
-
 	response.setContentType("text/html");
 	PrintWriter out = response.getWriter();
 	HttpSession session = request.getSession(true);
@@ -313,7 +298,7 @@ public class load_data extends HttpServlet {
 	    return;
 	}
 
-	// get the admin info obj
+	// get the AdminInfo object
 	admin_info = (AdminInfo) session.getAttribute("ADMIN_INFO");
 	if (admin_info == null) {
 	    response.sendRedirect(path + "/error.htm");
@@ -321,20 +306,19 @@ public class load_data extends HttpServlet {
 	}
 
 	String file_loc = admin_info.study_xml_path;
-	// String xml_temp_loc = file_loc + "tmp/";
+
 	String xml_temp_loc = CommonUtils.getAbsolutePath(file_loc);
+
 	xml_temp_loc = System.getProperty("os.name").toLowerCase()
 		.contains("window") ? xml_temp_loc.substring(1,
 		xml_temp_loc.length()) : xml_temp_loc;
+
 	File xml_dir = new File(xml_temp_loc);
 	if (!xml_dir.isDirectory())
 	    log.error("Not a directory");
 	xml_temp_loc = xml_dir.getAbsolutePath()
 		+ System.getProperty("file.separator");
 	file_loc = xml_temp_loc;
-	String css_path = admin_info.study_css_path;
-	// String image_path= admin_info.study_image_path;
-	String image_path = WISE_Application.images_path;
 	try {
 	    MultipartRequest multi = new MultipartRequest(request,
 		    xml_temp_loc, 250 * 1024);
@@ -486,7 +470,7 @@ public class load_data extends HttpServlet {
 	    psmnt = conn.prepareStatement("DELETE FROM " + studySpaceName
  + "."
 		    + tableName + " where filename =" + "'" + filename + "'");
-	    int s1 = psmnt.executeUpdate();
+	    psmnt.executeUpdate();
 	    psmnt = conn.prepareStatement("INSERT INTO " + studySpaceName
  + "."
 		    + tableName + "(filename,filecontents,upload_date)"
@@ -499,7 +483,7 @@ public class load_data extends HttpServlet {
 		    "yyyy-MM-dd HH:mm:ss");
 	    String currentDateString = sdf.format(currentDate);
 	    psmnt.setString(3, currentDateString);
-	    int s2 = psmnt.executeUpdate();
+	    psmnt.executeUpdate();
 
 	    conn.close();
 	} catch (SQLException e) {

@@ -129,8 +129,7 @@ public class AdminInfo extends WISE_Application {
 
 	pw_valid = password_given.equalsIgnoreCase(db_pwd);
 	if (pw_valid)
-	    try {
-		// get other properties TODO: GET THESE FROM DATA_BANK
+	    // get other properties
 		study_name = username;
 		study_id = params.getId();
 		// 20dec study_id = sharedProps.getString(username +
@@ -153,9 +152,6 @@ public class AdminInfo extends WISE_Application {
 		// record Admin user login
 		loggedIn.put(study_name, study_id);
 		log_info("Study name and study id inserted in loggedIn");
-	    } catch (Exception e) {
-		log_error("AdminInfo Constructor (login) Error: " + e, e);
-	    }
     }
 
     // finalize() called by garbage collector to clean up all objects

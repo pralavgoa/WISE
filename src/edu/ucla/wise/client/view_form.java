@@ -116,8 +116,6 @@ public class view_form extends HttpServlet {
 			+ "	top.requiredFields = null;"
 			+ "     var userId = "
 			+ theUser.id + ";" + "</script>");
-	html_content
-		.append("<link type='text/css' href='styleRender?css=style.css' rel='stylesheet'>");
 	html_content.append("</head>");
 	html_content
 		.append("<body onload='javascript: setFields();check_preconditions();'>");

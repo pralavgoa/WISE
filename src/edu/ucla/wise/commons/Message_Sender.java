@@ -29,7 +29,7 @@ public class Message_Sender {
     }
 
     public Message_Sender(Message_Sequence msg_seq) {
-	String myFromID = msg_seq.emailID();
+	// String myFromID = msg_seq.emailID();
 	try {
 	    // session = WISE_Application.get_mailSession(myFromID);
 	    // //WISE_Application knows how to look up passwords
@@ -107,7 +107,7 @@ public class Message_Sender {
 		// set the message body
 		mMessage.setContent(mp);
 	    }
-	    System.out.println(message);
+	    // System.out.println(message);
 	    // send message and return the result
 	    outputString = mailing_process(mMessage);
 	} catch (Exception e) {

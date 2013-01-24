@@ -26,7 +26,7 @@ public class AppImageRender extends HttpServlet {
      * 
      */
     private static final long serialVersionUID = 1L;
-    Logger log = Logger.getLogger(AppImageRender.class);
+    private static Logger log = Logger.getLogger(AppImageRender.class);
 
     /** Process the quiz request */
     @Override
@@ -36,19 +36,18 @@ public class AppImageRender extends HttpServlet {
 	if (app_name == null)
 	    app_name = "";
 	String image_name = request.getParameter("img");
-	/*
-	 * not using app name if (!CommonUtils.isEmpty(app_name)) { image_name =
-	 * app_name + System.getProperty("file.separator") + image_name; }
-	 */
+
 	int buffer_size = 2 << 12;// 16kb buffer
+
 	byte[] byte_buffer = new byte[buffer_size];
 
 	response.setContentType("text/html");
 
 	HttpSession session = request.getSession(true);
+
 	// if session is new, then show the session expired info
 	if (session.isNew()) {
-	    getImageFromFileSystem(response, image_name, app_name);
+	    getFromFileSystem(response, image_name, app_name, true);
 	    return;
 	}
 	Study_Space study_space = (Study_Space) session
@@ -56,7 +55,7 @@ public class AppImageRender extends HttpServlet {
 	if (study_space == null) {
 	    // retrieve image from directory [duplicated code]
 	    WISE_Application.log_info("Fetching image from file system");
-	    getImageFromFileSystem(response, image_name, app_name);
+	    getFromFileSystem(response, image_name, app_name, true);
 	    // P
 	    // out.println("<p>Error: Can't find the user & study space.</p>");
 	    return;
@@ -82,8 +81,8 @@ public class AppImageRender extends HttpServlet {
 		}
 		response.getOutputStream().flush();
 	    } else {
-		log.info("Fetching image from file system");
-		getImageFromFileSystem(response, image_name, app_name);
+		log.info("Fetching image from file system: " + image_name);
+		getFromFileSystem(response, image_name, app_name, true);
 	    }
 
 	    if (imageStream != null) {
@@ -93,31 +92,10 @@ public class AppImageRender extends HttpServlet {
 	    e.printStackTrace();
 	    log.error("File not found", e);
 	}
-	/********************************************************/
-	/** Original non database code **/
-	/*
-	 * // Retrieve the image from the correct directory String
-	 * path_to_images = WISE_Application.images_path; // check if
-	 * (path_to_images + project_name + image_name) exists if not // jjust
-	 * retrieve image_name // uploaded images are projname + _ + image_name
-	 * String path_with_study_name = path_to_images +
-	 * System.getProperty("file.separator") + image_name; InputStream
-	 * imgStream = null; try { imgStream =
-	 * CommonUtils.loadResource(path_with_study_name); if (imgStream ==
-	 * null) { // trying to load the file, will 100% fail! imgStream = new
-	 * FileInputStream(path_with_study_name); } imgStream.read(rb, 0, len);
-	 * response.reset(); response.setContentType("image/jpg");
-	 * response.getOutputStream().write(rb, 0, len);
-	 * response.getOutputStream().flush(); } catch (IOException e) {
-	 * log.error("File not found", e); } finally { if (imgStream != null) {
-	 * imgStream.close(); }
-	 * 
-	 * }
-	 */// end of original non database code
     }
 
-    public void getImageFromFileSystem(HttpServletResponse response,
-	    String image_name, String appName) {
+    public static void getFromFileSystem(HttpServletResponse response,
+	    String image_name, String appName, boolean isImage) {
 	int buffer_size = 2 << 12;// 16kb buffer
 	byte[] byte_buffer = new byte[buffer_size];
 
@@ -125,10 +103,6 @@ public class AppImageRender extends HttpServlet {
 	try {
 	    // Retrieve the image from the correct directory
 	    String path_to_images = WISE_Application.images_path;
-	    // check if (path_to_images + project_name + image_name) exists if
-	    // not
-	    // jjust retrieve image_name
-	    // uploaded images are projname + _ + image_name
 
 	    String path_with_study_name;
 	    if ("".equals(appName)) {
@@ -161,8 +135,7 @@ public class AppImageRender extends HttpServlet {
 		try {
 		    imageStream.close();
 		} catch (IOException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
+		    log.error(e);
 		}
 	    }
 	}

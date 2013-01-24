@@ -56,25 +56,26 @@ public class AppStyleRender extends HttpServlet {
 	    log.info("Study space name is null");
 	    return;
 	}
-	
+
 	Data_Bank db = study_space.getDB();
 	InputStream cssStream = null;
 	int buffer_size = 2 << 12;// 16kb buffer
-	byte[] byte_buffer = new byte[buffer_size];
-	
+	byte[] byte_buffer;
+
 	try {
 	    cssStream = db.getFileFromDatabase(css_name, app_name);
 	    if (cssStream != null) {
 		response.reset();
 		response.setContentType("text/css;charset=UTF-8");
-		 
-		 int count = 1;// initializing to a value > 0
-			while (count > 0) {
-			    count = cssStream.read(byte_buffer, 0, buffer_size);
-			    response.getOutputStream().write(byte_buffer, 0,
-				    buffer_size);
-			}
-			response.getOutputStream().flush();
+
+		int count = 1;// initializing to a value > 0
+		while (count > 0) {
+		    byte_buffer = new byte[buffer_size];
+		    count = cssStream.read(byte_buffer, 0, buffer_size);
+		    response.getOutputStream().write(byte_buffer, 0,
+			    buffer_size);
+		}
+		response.getOutputStream().flush();
 	    } else {
 		return;
 	    }
@@ -82,8 +83,7 @@ public class AppStyleRender extends HttpServlet {
 	    log.error("File not found", e);
 	}
 
-	
-	
+
 
 
     }

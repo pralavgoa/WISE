@@ -285,7 +285,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<servlet>
 		<display-name>admin_print_survey</display-name>
 		<servlet-name>admin_print_survey</servlet-name>
-		<servlet-class>edu.ucla.wise.client.admin.print_survey</servlet-class>
+		<servlet-class>edu.ucla.wise.admin.print_survey</servlet-class>
 	</servlet>
 
 	<servlet>

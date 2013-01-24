@@ -340,7 +340,7 @@ public class User_DB_Connection {
 	sql_statement.append(comma_sepd_column_names.toString() + ") ");
 	sql_statement.append("VALUES (");
 	if (row_id != null)
-	    sql_statement.append(row_id + ",");
+	    sql_statement.append("'" + row_id + "',");
 	sql_statement.append(theUser.id + ",");
 	sql_statement.append("'" + row_name + "',");
 	sql_statement.append(comma_sepd_column_values.toString() + ") ");

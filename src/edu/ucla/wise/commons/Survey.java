@@ -267,14 +267,18 @@ public class Survey {
 		    + "&img=" + logo_name + "' border=0></td></tr>";
 	    s += "<tr><td>&nbsp;</td></tr>";
 	    // display the interrupt link
-	    s += "<tr><td>";
-	    s += "<a href=\"javascript:top.mainFrame.form.document.mainform.action.value='interrupt';";
-	    s += "top.mainFrame.form.document.mainform.submit();\" target=\"_top\">";
-	    s += "<font size=\"-1\"><center>Click here to <B>SAVE</B> your answers ";
-	    s += "if you need to pause</center></font></a>";
-	    s += "</td></tr>";
-	    s += "<tr><td><font size=\"-2\">&nbsp;</font></td></tr>";
-	    s += "<tr><td>";
+	    /*
+	     * Pralav: get rid of save feature s += "<tr><td>"; s +=
+	     * "<a href=\"javascript:top.mainFrame.form.document.mainform.action.value='interrupt';"
+	     * ; s +=
+	     * "top.mainFrame.form.document.mainform.submit();\" target=\"_top\">"
+	     * ; s +=
+	     * "<font size=\"-1\"><center>Click here to <B>SAVE</B> your answers "
+	     * ; s += "if you need to pause</center></font></a>"; s +=
+	     * "</td></tr>"; s +=
+	     * "<tr><td><font size=\"-2\">&nbsp;</font></td></tr>"; s +=
+	     * "<tr><td>";
+	     */
 	    // display the page name list
 	    s += "<table width=100 height=200 border=0 cellpadding=5 cellspacing=5 bgcolor=#F0F0FF>";
 	    s += "<tr><td align=center>";
@@ -335,12 +339,16 @@ public class Survey {
 	    s += "<img src='" + "imageRender?app=" + study_space.study_name
 		    + "&img=" + logo_name + "' border=0></td></tr>";
 	    s += "<tr><td>&nbsp;</td></tr>";
-	    s += "<tr><td>";
-	    s += "<a href=\"javascript:top.mainFrame.form.document.mainform.action.value='interrupt';";
-	    s += "top.mainFrame.form.document.mainform.submit();\" target=\"_top\">";
-	    s += "<font size=\"-1\"><center>Click here to <B>SAVE</B> your answers ";
-	    s += "if you need to pause</center></font></a>";
-	    s += "</td></tr>";
+	    /*
+	     * Pralav: remove save button s += "<tr><td>"; s +=
+	     * "<a href=\"javascript:top.mainFrame.form.document.mainform.action.value='interrupt';"
+	     * ; s +=
+	     * "top.mainFrame.form.document.mainform.submit();\" target=\"_top\">"
+	     * ; s +=
+	     * "<font size=\"-1\"><center>Click here to <B>SAVE</B> your answers "
+	     * ; s += "if you need to pause</center></font></a>"; s +=
+	     * "</td></tr>";
+	     */
 	    s += "<tr><td><font size=\"-2\">&nbsp;</font></td></tr>";
 	    s += "<tr><td>";
 
@@ -353,10 +361,10 @@ public class Survey {
 		s += "<tr>";
 		if (i != idx) {
 		    s += "<td bgcolor='#99CCFF' align=left colspan=1>";
-		    s += "<a href=\"javascript:top.mainFrame.form.document.mainform.action.value='linkpage';";
-		    s += "top.mainFrame.form.document.mainform.nextPage.value='"
+		    s += "<a href=\"javascript:document.mainform.action.value='linkpage';";
+		    s += "document.mainform.nextPage.value='"
 			    + pages[i].id + "';";
-		    s += "top.mainFrame.form.document.mainform.submit();\" target=\"_top\">";
+		    s += "document.mainform.submit();\" target=\"_top\">";
 		    s += "<font size=-2><b>" + pages[i].title
 			    + "</b></font></a>";
 		} else {

@@ -71,7 +71,7 @@ public class logonp extends HttpServlet {
 	    session.setAttribute("ADMIN_INFO", admin_info);
 	    // send HTTP request to create study space and admin user
 	    res.sendRedirect(path + "/" + WiseConstants.ADMIN_APP + "/tool.jsp");
-	    log.info("Login Success!");
+		log.info("Admin login Success!");
 	}
 	} catch (IllegalArgumentException e) {
 	    log.error("Could not get the parameters for study space "
