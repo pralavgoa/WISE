@@ -88,8 +88,8 @@ public class HealthMonitoringManager implements Runnable {
 	String user = null;
 	String pass = null;
 
-	pass = WISE_Application.sharedProps.getString("wise.email.password");
-	user = WISE_Application.sharedProps.getString("wise.email.username");//
+	pass = WISE_Application.sharedProps.getString("SMTP_AUTH_PASSWORD");
+	user = WISE_Application.sharedProps.getString("SMTP_AUTH_USER");//
 	MailHost = WISE_Application.sharedProps.getString("email.host");
 	try {
 	    tr.connect(MailHost, user, pass);

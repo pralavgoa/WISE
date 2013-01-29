@@ -23,6 +23,7 @@ public class thank_you_generate extends HttpServlet {
 
     private static final long serialVersionUID = 1000;
 
+    @Override
     public void service(HttpServletRequest req, HttpServletResponse res)
 	    throws ServletException, IOException {
 
@@ -90,7 +91,9 @@ public class thank_you_generate extends HttpServlet {
 		    .append("<table width=100% cellspacing=1 cellpadding=9 border=0>");
 	    thankyou_html
 		    .append("<tr><td width=98 align=center valign=top><img src='"
-			    + "imageRender?app="
+			    + WISE_Application.rootURL
+			    + "/WiseShared"
+			    + "/image?study="
 			    + study_space.study_name
 			    + "&img=" + logo + "' border=0 align=middle></td>");
 	    thankyou_html

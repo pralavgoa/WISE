@@ -18,13 +18,14 @@ import org.w3c.dom.NodeList;
 public class Preface {
     /** Instance Variables */
     public String project_name = "";
+    public String studySpaceName = "";
 
     public Hashtable welcome_pages = new Hashtable();
     public Hashtable consent_forms = new Hashtable();
     public Hashtable irb_sets = new Hashtable();
-    private Hashtable all_message_sequences = new Hashtable();
-    private Hashtable all_messages = new Hashtable();
-    private Hashtable messageSequences_byMsgID = new Hashtable();
+    private final Hashtable all_message_sequences = new Hashtable();
+    private final Hashtable all_messages = new Hashtable();
+    private final Hashtable messageSequences_byMsgID = new Hashtable();
     public Thankyou_Page thankyou_page;
 
     // public Study_Space study_space;
@@ -276,6 +277,7 @@ public class Preface {
      * (Message[]) foundMsgs.toArray(new Message[foundMsgs.size()]); }
      */
 
+    @Override
     public String toString() {
 	String resp = "<b>Preface: </b><br>Message sequences<br>";
 	Message_Sequence msgsq;

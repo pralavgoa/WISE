@@ -55,7 +55,7 @@ public class Data_Bank {
     // TODO (med) add mechanism to use decimalPlaces and maxSize rather than
     // this default
 
-    Logger log = Logger.getLogger(Data_Bank.class);
+    private static Logger log = Logger.getLogger(Data_Bank.class);
 
     /** Instance Variables */
 
@@ -70,7 +70,7 @@ public class Data_Bank {
 	try {
 	    DriverManager.registerDriver(new com.mysql.jdbc.Driver());
 	} catch (Exception e) {
-	    WISE_Application.log_error("Data_Bank init Error: " + e, e);
+	    log.error("Data_Bank init Error: " + e, e);
 	}
     }
 
@@ -115,7 +115,7 @@ public class Data_Bank {
 	    stmt.close();
 	    conn.close();
 	} catch (Exception e) {
-	    WISE_Application.log_error(
+	    log.error(
 		    "Data_Bank user creation error:" + e.toString(), e);
 	}
     }
@@ -149,7 +149,7 @@ public class Data_Bank {
 	    stmt.close();
 	    conn.close();
 	} catch (Exception e) {
-	    WISE_Application.log_error(
+	    log.error(
 		    "Data_Bank user creation error:" + e.toString(), e);
 	}
 	return theUser;
@@ -200,6 +200,7 @@ public class Data_Bank {
 	}
 
 
+	String create_sql = "";
 	try {
 	    Connection conn = getDBConnection();
 	    Statement stmt = conn.createStatement();
@@ -232,7 +233,7 @@ public class Data_Bank {
 	    stmt.execute(sql);
 	    ResultSet rs = stmt.getResultSet();
 	    String internal_id, filename, title, uploaded, status;
-
+	    
 	    if (rs.next()) {
 		// save the data of the newly inserted survey record
 		internal_id = rs.getString("internal_id");
@@ -250,16 +251,16 @@ public class Data_Bank {
 		String old_archive_date = archive_table(survey);
 
 		// create new data table
-		sql_m = "CREATE TABLE " + survey.id + MainTableExtension
+		create_sql = "CREATE TABLE " + survey.id + MainTableExtension
 			+ " (invitee int(6) not null, status varchar(64),";
-		sql_m += new_create_str;
-		sql_m += "PRIMARY KEY (invitee),";
-		sql_m += "FOREIGN KEY (invitee) REFERENCES invitee(id) ON DELETE CASCADE";
-		sql_m += ") ";
+		create_sql += new_create_str;
+		create_sql += "PRIMARY KEY (invitee),";
+		create_sql += "FOREIGN KEY (invitee) REFERENCES invitee(id) ON DELETE CASCADE";
+		create_sql += ") ";
 
 		log.info("Create table statement is:" + sql_m);
 
-		stmt_m.execute(sql_m);
+		stmt_m.execute(create_sql);
 
 		// add the new survey record back in the table of surveys, and
 		// save the new table creation syntax
@@ -295,8 +296,8 @@ public class Data_Bank {
 	    stmt.close();
 	    stmt_m.close();
 	} catch (Exception e) {
-	    WISE_Application.log_error(
-		    "SURVEY - CREATE TABLE: " + e.toString(), null);
+	    log.error(
+"SURVEY - CREATE TABLE: " + create_sql, e);
 	}
 	return;
     }
@@ -1480,11 +1481,11 @@ public class Data_Bank {
 	return strBuff.toString();
     }
 
-    public String addInviteeAndDisplayPage(Map requestParameters) {
+    public String addInviteeAndDisplayPage(Map<String, String> requestParameters) {
 	return handle_addInvitees(requestParameters, true);
     }
 
-    public int addInviteeAndReturnUserId(Map requestParameters) {
+    public int addInviteeAndReturnUserId(Map<String, String> requestParameters) {
 	return Integer.parseInt(handle_addInvitees(requestParameters, false));
     }
 
@@ -1511,6 +1512,11 @@ public class Data_Bank {
 		String column_name = rs.getString("Field");
 		if (column_name.equalsIgnoreCase("id"))
 		    continue;
+
+		log.info("Column name is " + column_name);
+
+		log.info(requestParameters.get(column_name));
+		
 		String column_val = requestParameters.get(column_name);
 		String column_type = rs.getString("Type");
 		resStr += "<tr><td width=400 align=left>" + column_name;
@@ -1592,8 +1598,10 @@ public class Data_Bank {
 		}
 	    }
 
-	} catch (Exception e) {
-	    WISE_Application.log_error(
+	} catch (RuntimeException e) {
+	    log.error("Runtime exception while loading invitee", e);
+	} catch (SQLException e) {
+	    log.error(
 		    "WISE ADMIN - LOAD INVITEE: " + e.toString(), e);
 	    resStr += "<p>Error: " + e.toString() + "</p>";
 	    return resStr;

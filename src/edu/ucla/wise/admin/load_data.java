@@ -351,7 +351,7 @@ public class load_data extends HttpServlet {
 
 		saveFileToDatabase(multi, filename, "wisefiles");
 
-		out.println("<p>The style sheet named " + filename
+		out.println("<p>The image named " + filename
 			+ " has been successfully uploaded.</p>");
 	    } else {
 		// open database connection

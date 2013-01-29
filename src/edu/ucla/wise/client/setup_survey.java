@@ -75,8 +75,7 @@ public class setup_survey extends HttpServlet {
 	if (theUser.completed_survey()) // triage should prevent this but in
 					// case it fails, bail out to "thanks"
 					// page
-	    res.sendRedirect(Surveyor_Application.shared_file_url + "thanks"
-		    + Surveyor_Application.html_ext);
+	    res.sendRedirect(Surveyor_Application.shared_file_url + "thank_you");
 
 	// Initialize survey session, passing the browser information
 	String browser_info = req.getHeader("user-agent");

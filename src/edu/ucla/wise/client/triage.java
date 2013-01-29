@@ -77,7 +77,7 @@ public class triage extends HttpServlet {
 		// This previously *just* recorded the current page in the db;
 		// not sure why if interviewing and done
 		main_url = Surveyor_Application.servlet_url
-			+ "wise_outer_frame";
+ + "setup_survey";
 	    } else // not an interview
 	    {
 		// forward to another application's URL, if specified in survey
@@ -132,7 +132,7 @@ public class triage extends HttpServlet {
 	} else if (theUser.started_survey()) {
 	    // for either user or interviewer, redirect to start the current
 	    // page.
-	    main_url = Surveyor_Application.servlet_url + "wise_outer_frame";
+	    main_url = Surveyor_Application.servlet_url + "setup_survey";
 	} else // forward to the welcome page
 	{
 	    // main_url =

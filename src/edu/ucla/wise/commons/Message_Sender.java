@@ -171,9 +171,9 @@ public class Message_Sender {
 	    String pass = null;
 
 	    pass = WISE_Application.sharedProps
-		    .getString("wise.email.password");
+.getString("SMTP_AUTH_PASSWORD");
 	    user = WISE_Application.sharedProps
-		    .getString("wise.email.username");//
+.getString("SMTP_AUTH_USER");//
 	    MailHost = WISE_Application.sharedProps.getString("email.host");
 	    tr.connect(MailHost, user, pass);
 	    if ((MailHost == null) || (user == null) || (pass == null)) {

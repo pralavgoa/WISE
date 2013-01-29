@@ -41,7 +41,7 @@ public class AppImageRender extends HttpServlet {
 
 	byte[] byte_buffer = new byte[buffer_size];
 
-	response.setContentType("text/html");
+	response.setContentType("image");
 
 	HttpSession session = request.getSession(true);
 

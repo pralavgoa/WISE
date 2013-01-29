@@ -2,6 +2,9 @@ package edu.ucla.wise.client;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -56,8 +59,22 @@ public class save_anno_user extends HttpServlet {
 	/**
 	 * 1. Adding the New User
 	 */
-	int userId = theStudy.db.addInviteeAndReturnUserId(request
-		.getParameterMap());
+
+	Map<String, String> parametersMap = new HashMap<String, String>();
+
+	Enumeration<String> parametersNames = request.getParameterNames();
+
+	while (parametersNames.hasMoreElements()) {
+
+	    String parameterName = parametersNames.nextElement();
+
+	    String[] parameterValues = request.getParameterValues(parameterName);
+	    
+	    parametersMap.put(parameterName, parameterValues[0]);
+
+	}
+
+	int userId = theStudy.db.addInviteeAndReturnUserId(parametersMap);
 
 	/**
 	 * 2. Sending the New User initial invite

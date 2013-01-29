@@ -1,6 +1,3 @@
-/**
- * 
- */
 package edu.ucla.wise.admin.healthmon;
 
 import java.util.Date;
@@ -9,10 +6,6 @@ import edu.ucla.wise.commons.Data_Bank;
 import edu.ucla.wise.commons.WiseConstants;
 import edu.ucla.wise.commons.WiseConstants.SURVEY_STATUS;
 
-/**
- * @author ssakdeo
- * 
- */
 public class HealthStatus {
 
     private static HealthStatus healthStatus = null;
