@@ -29,6 +29,20 @@ div.repeating_item_instance_details, div.add_item_to_repeating_set{
   margin-right:1ex;
 }
 
+div.repeating_item_instance_details {
+	margin-top:0;
+}
+
+div.repeating_item_instance{
+	margin-bottom:0;
+}
+
+.instance_name{
+	border-bottom: 1px solid #c4cde0;
+	margin-left: 0;
+	padding-left: 1ex;
+}
+
 .add_repeat_instance_name_button{
   margin-left:2ex;
 }

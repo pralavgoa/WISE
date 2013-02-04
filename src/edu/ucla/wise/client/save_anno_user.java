@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Strings;
+
 import edu.ucla.wise.commons.Message_Sequence;
 import edu.ucla.wise.commons.Study_Space;
 import edu.ucla.wise.commons.WISE_Application;
@@ -71,6 +73,13 @@ public class save_anno_user extends HttpServlet {
 	    String[] parameterValues = request.getParameterValues(parameterName);
 	    
 	    parametersMap.put(parameterName, parameterValues[0]);
+
+	}
+
+	if (Strings.isNullOrEmpty(parametersMap.get("lastname"))) {
+	    pw.write("<html><body>The 'Last Name' field cannot be left blank</body><html>");
+	    pw.close();
+	    return;
 
 	}
 

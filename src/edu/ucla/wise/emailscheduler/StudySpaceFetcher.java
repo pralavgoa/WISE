@@ -29,10 +29,12 @@ public class StudySpaceFetcher {
 	    LOG.error(e1);
 	}
 
-	Study_Space[] allSpaces = new Study_Space[0];
+	Study_Space[] allSpaces;
 
 	try {
 	    allSpaces = Study_Space.get_all();
+
+	    LOG.info("Found " + allSpaces.length + " study spaces");
 
 	    for (Study_Space studySpace : allSpaces) {
 

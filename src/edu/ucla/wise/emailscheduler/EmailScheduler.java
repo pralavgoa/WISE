@@ -13,13 +13,14 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.Data_Bank;
 import edu.ucla.wise.commons.Study_Space;
+import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 
 /**
  * This email thread will spawn action of sending reminders.
  * 
  */
 public class EmailScheduler {
-    public static final String APPLICATION_NAME = "WISE";
+    public static final String APPLICATION_NAME = "/WISE";
 
     public static final int DEFAULT_EMAIL_START_TIME = 2;
     public static final long MILLISECONDS_IN_A_DAY = 86400000;
@@ -33,6 +34,12 @@ public class EmailScheduler {
 
 	List<Study_Space> studySpaceList = StudySpaceFetcher
 		.getStudySpaces(APPLICATION_NAME);
+
+	LOG.info("Found " + studySpaceList.size() + " study spaces");
+
+	LOG.info("Map has "
+		+ StudySpaceParametersProvider.getInstance()
+			.getStudySpaceParametersMap().size() + " Study Spaces");
 
 	executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -69,7 +76,7 @@ public class EmailScheduler {
 		public void run() {
 		    LOG.info("Mail sender for " + studySpace.id
 			    + " has started");
-		    EmailScheduler.sendEmailsInStudySpace(studySpace);
+		    // EmailScheduler.sendEmailsInStudySpace(studySpace);
 		    LOG.info("Mail sender for " + studySpace.id
 			    + " has finished");
 

@@ -287,10 +287,13 @@ public class User_DB_Connection {
 	return h;
     }
 
-    public void insert_update_row_repeating_table(String table_name,
+    public int insert_update_row_repeating_table(String table_name,
 	    String row_id, String row_name,
 	    Hashtable<String, String> name_value,
 	    Hashtable<String, String> name_type) {
+
+	int insertedKeyValue = -1;
+
 	StringBuffer sql_statement = new StringBuffer("");
 	StringBuffer comma_sepd_column_names = new StringBuffer("");
 	StringBuffer comma_sepd_column_values = new StringBuffer("");
@@ -308,8 +311,14 @@ public class User_DB_Connection {
 	    String column_value = name_value.get(column_name);
 	    if (name_type.get(column_name).equals("text")
 		    || name_type.get(column_name).equals("textarea")) {
-		comma_sepd_column_values.append("'" + fixquotes(column_value)
-			+ "'" + ",");
+
+		if ("".equals(column_value)) {
+		    comma_sepd_column_values.append(" NULL,");
+		} else {
+		    comma_sepd_column_values.append("'"
+			    + fixquotes(column_value) + "'" + ",");
+		}
+
 	    } else {
 		comma_sepd_column_values.append(column_value + ",");
 	    }
@@ -340,7 +349,7 @@ public class User_DB_Connection {
 	sql_statement.append(comma_sepd_column_names.toString() + ") ");
 	sql_statement.append("VALUES (");
 	if (row_id != null)
-	    sql_statement.append("'" + row_id + "',");
+	    sql_statement.append(row_id + ",");
 	sql_statement.append(theUser.id + ",");
 	sql_statement.append("'" + row_name + "',");
 	sql_statement.append(comma_sepd_column_values.toString() + ") ");
@@ -364,7 +373,16 @@ public class User_DB_Connection {
 	}
 
 	try {
-	    statement.execute(sql_statement.toString());
+	    statement.execute(sql_statement.toString(),
+		    Statement.RETURN_GENERATED_KEYS);
+
+	    ResultSet generatedKeySet = statement.getGeneratedKeys();
+
+
+	    if (generatedKeySet.first()) {
+		insertedKeyValue = generatedKeySet.getInt(1);
+	    }
+
 	} catch (Exception e) {
 	    WISE_Application.log_error("WISE - Repeat Item Store error ["
 		    + theUser.id + "] query (" + sql_statement.toString()
@@ -377,6 +395,8 @@ public class User_DB_Connection {
 		    "WISE - Repeat Item Store closing error: " + e.toString(),
 		    null);
 	}
+
+	return insertedKeyValue;
 
     }
 

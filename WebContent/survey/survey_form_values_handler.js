@@ -1,3 +1,4 @@
+//Version 1.31.2013.1
 $(document).ready(function(){
 
 	//------------------------------------------------------------------------------//
@@ -32,8 +33,17 @@ $(document).ready(function(){
 		//get the JSON object
 		$.getJSON("./repeating_item_io?repeat_table_name="+item_set_name+"&"+"time="+milliseconds, function(json_response) {
 
+			var instance_number = 0;
+			for(instance in json_response){
+				instance_number++;
+			}
+
+			if(instance_number > 0){
+				changePlaceholderValue(item_set_name);
+			}
+
 			add_repeating_set_instances(json_response, item_set_name);
-			
+
 			$("body").removeClass("loading");
 		});
 
@@ -52,9 +62,11 @@ $(document).ready(function(){
 					add_html +="<h3 style='font-size:1.5em;font-weight:bold;margin-bottom:0'>"+instance_name+"</h3>";
 					add_html += "</div>";
 
+					var div_id_for_instance = item_set_name+"_"+instance_id;
+					
 					//Get contents of this div as html
 					//create a string which has a div, with div id, and then put all the content inside that div
-					add_html += "<div id='"+instance_id+"' name="+instance_name+" class='repeating_item_instance_details' style='display:none'>";		
+					add_html += "<div id='"+ div_id_for_instance +"' name="+instance_name+" class='repeating_item_instance_details' style='display:none'>";		
 					$("#repeating_set_with_id_"+item_set_name).find(".add_item_to_repeating_set").children("div").not(".wrapper_for_add_cancel").each(function(){
 
 						var html_in_add_repeat_set = $(this).html();
@@ -109,7 +121,7 @@ $(document).ready(function(){
 //								console.log("Input selector is: "+ input_selector);
 								var input_item_value = instance_values_for_instance[k];
 
-								$("#repeating_set_with_id_"+item_set_name+" > .repeating_question > div#"+instance_id).find(input_selector).each(function(){
+								$("#repeating_set_with_id_"+item_set_name+" > .repeating_question > div#"+div_id_for_instance).find(input_selector).each(function(){
 									set_input_element_value($(this), input_item_value);
 								});
 
@@ -186,11 +198,11 @@ $(document).ready(function(){
 		isARepeatingInstanceAddedGlobal = true;
 		var instance_name = $(this).parent().children(".repeat_item_name").val();
 		$(this).parent().children(".repeat_item_name").val('');
-		
+
 		instance_name = instance_name.replace(/[^a-z0-9\s]/gi, '');
 
 		if(jQuery.trim(instance_name).length > 0){
-			
+
 			var instance_name_header = "<div class='instance_name'><h3 style='font-weight:bold'>"+instance_name+"</h3></div>";
 			$(this).parent().parent().children(".add_item_to_repeating_set").find('.instance_name').remove();
 			$(this).parent().parent().children(".add_item_to_repeating_set").prepend(instance_name_header);
@@ -207,89 +219,19 @@ $(document).ready(function(){
 	//---------------------------------------------------------------------------------------------------//
 	//Repeat item save is clicked in a particular instance of repeating item
 	$(".add_repeat_item_save_button").click(function () {
-		
+
 		$(this).removeClass("unsaved");
-		
+
 		//Clear the add repeat item save box
 		$(this).parent().parent().siblings().find(".repeat_item_name").val('');
-		
+
 		var item_set_name= $(this).parent().parent().parent().attr("id").replace("repeating_set_with_id_","");
-		
+
 		//set the global variable to keep track of whether user has saved
 		isARepeatingInstanceAddedGlobal = false;
 		//Get the project instance name, all will have the same name
 		var project_name = $(this).parent().siblings(".instance_name").text();
-		var project_name_as_id = project_name.replace(/ /g,"_");
 
-		//Get contents of this div as html
-		//create a string which has a div, with div id, and then put all the content inside that div
-		var add_html = "<div class='repeating_item_instance' style='background-color:#e5e5e5;'>";
-		add_html  += "<a class='delete_repeating_instance' href='#' style='display:inline;margin-left:5px;margin-right:200px;letter-spacing:0;float:right;'>Delete</a>";
-		add_html += "<a class='edit_repeating_instance' href='#' style='display:inline;letter-spacing:0;float:right;'>Edit/Review</a>";
-		add_html +="<h3 style='font-size:1.5em;font-weight:bold;margin-bottom:0'>"+project_name+"</h3>";
-		add_html += "</div>";
-
-		add_html += "<div id='"+project_name_as_id+"' class='repeating_item_instance_details'>";		
-
-
-		$(this).parent().parent().children("div").not(".wrapper_for_add_cancel").not(".instance_name").each(function(){
-
-			var html_in_div = $(this).html();
-
-			var modified_html_in_div = $("<div>"+html_in_div+"</div>");
-
-			//Make sure input values are set in the input elements
-
-			//change the ids of the input elements
-
-			$(modified_html_in_div).find(":input").each(function() {
-				var input_element_name = $(this).attr("name");
-
-//				if($.browser.msie === true){
-//				$(this).replaceWith(
-//				document.createElement(
-//				this.outerHTML.replace(/name=\w+/ig, 'name=repeat_'+input_element_name)
-//				));
-//				}
-//				else{
-				$(this).attr("name","repeat"+"_"+input_element_name);
-//				}
-//				$(this).val($(this).attr("value"));
-			});
-
-
-			add_html += "<div>";		
-			add_html += $(modified_html_in_div).html();
-			add_html += "</div>";
-		});
-		add_html += "<a href='#' class='save_repeating_item_instance'> Save Changes </a>";
-		add_html += "</div>";
-
-		//append this div to the repeating questions parent div
-		$("#repeating_set_with_id_"+item_set_name+" > div.repeating_question").prepend(add_html);
-
-		var input_values = {};
-		$(this).parent().parent().find(":input").each(function(){
-
-			var input_name = $(this).attr("Name");
-			var input_value = get_input_element_value($(this));
-
-			//	console.log("Setting: Input name is "+input_name+" value is "+input_value);
-
-			if(input_value != "null" && input_value !="unchecked"){
-				input_values[input_name]=input_value;
-			}
-
-
-		});
-
-		for(var input_name_to_find in input_values){
-			//	console.log("div#" + project_name_as_id+" "+":input[name='"+"repeat_"+input_name_to_find+"']");
-			$("#" + project_name_as_id).find(":input[name='"+"repeat_"+input_name_to_find+"']").each(function(){
-				//		console.log("Getting: Input name is "+input_name_to_find+" value is "+input_values[input_name_to_find]);
-				set_input_element_value($(this),input_values[input_name_to_find]);
-			});
-		}
 
 		// get the database table name
 		var data_table_name = $(this).parent().parent().siblings(".repeating_question").attr("name");
@@ -299,8 +241,96 @@ $(document).ready(function(){
 		var instance_id;//not initializing
 
 		var selector = $(this).parent().parent();
+		var generatedKey = -1;
 
-		create_send_json(selector,data_table_name, instance_id,project_name, true);		
+		
+		//console.log("Starting the when function");
+		$.when(create_send_json(selector,data_table_name, instance_id,project_name, true),selector).then(function(genKey,div_selector){
+			generatedKey = String(genKey[0]);
+		
+			//console.log("done with the when function with genKey "+genKey[0]+"!");
+			
+			var project_name_as_id = data_table_name+"_"+generatedKey;
+
+		
+			if(generatedKey == -1){
+				alert("Data could not be saved due to network issues, please try again.");
+			}
+
+			//Get contents of this div as html
+			//create a string which has a div, with div id, and then put all the content inside that div
+			var add_html = "<div class='repeating_item_instance' style='background-color:#e5e5e5;'>";
+			add_html  += "<a class='delete_repeating_instance' href='#' style='display:inline;margin-left:5px;margin-right:200px;letter-spacing:0;float:right;'>Delete</a>";
+			add_html += "<a class='edit_repeating_instance' href='#' style='display:inline;letter-spacing:0;float:right;'>Edit/Review</a>";
+			add_html +="<h3 style='font-size:1.5em;font-weight:bold;margin-bottom:0'>"+project_name+"</h3>";
+			add_html += "</div>";
+
+			add_html += "<div id='"+project_name_as_id+"' class='repeating_item_instance_details'>";		
+
+
+			$(div_selector[0]).children("div").not(".wrapper_for_add_cancel").not(".instance_name").each(function(){
+
+				var html_in_div = $(this).html();
+
+				var modified_html_in_div = $("<div>"+html_in_div+"</div>");
+
+				//Make sure input values are set in the input elements
+
+				//change the ids of the input elements
+
+				$(modified_html_in_div).find(":input").each(function() {
+					var input_element_name = $(this).attr("name");
+
+//					if($.browser.msie === true){
+//					$(this).replaceWith(
+//					document.createElement(
+//					this.outerHTML.replace(/name=\w+/ig, 'name=repeat_'+input_element_name)
+//					));
+//					}
+//					else{
+					$(this).attr("name","repeat"+"_"+input_element_name);
+//					}
+//					$(this).val($(this).attr("value"));
+				});
+
+
+				add_html += "<div>";		
+				add_html += $(modified_html_in_div).html();
+				add_html += "</div>";
+			});
+			add_html += "<a href='#' class='save_repeating_item_instance'> Save Changes </a>";
+			add_html += "</div>";
+
+
+			//append this div to the repeating questions parent div
+			$("#repeating_set_with_id_"+item_set_name+" > div.repeating_question").prepend(add_html);
+
+			var input_values = {};
+			$(div_selector[0]).find(":input").each(function(){
+
+				var input_name = $(this).attr("Name");
+				var input_value = get_input_element_value($(this));
+
+				//	console.log("Setting: Input name is "+input_name+" value is "+input_value);
+
+				if(input_value != "null" && input_value !="unchecked"){
+					input_values[input_name]=input_value;
+				}
+
+
+			});
+
+			for(var input_name_to_find in input_values){
+				//	console.log("div#" + project_name_as_id+" "+":input[name='"+"repeat_"+input_name_to_find+"']");
+				$("#" + project_name_as_id).find(":input[name='"+"repeat_"+input_name_to_find+"']").each(function(){
+					//		console.log("Getting: Input name is "+input_name_to_find+" value is "+input_values[input_name_to_find]);
+					set_input_element_value($(this),input_values[input_name_to_find]);
+				});
+			}
+
+
+
+
 
 //		if($.browser.msie === true){
 //		location.reload();
@@ -309,7 +339,7 @@ $(document).ready(function(){
 		hide_repeating_instances();
 //		}
 
-
+		});
 		return false;
 	});	
 	//=================================================================================================/
@@ -329,6 +359,7 @@ $(document).ready(function(){
 	//toggle the repeating item instance
 	$(".edit_repeating_instance").live('click', function(){
 		$(this).parent().next("div").toggle("slow");
+		return false;
 	});
 
 	$(".delete_repeating_instance").live('click', function(){
@@ -396,16 +427,21 @@ $(document).ready(function(){
 
 		//get the row name
 		var instance_id= ""+$(this).parent().attr("id");
-
-		if(instance_id == "undefined"){
-			instance_id == "null";
+		
+		var instance_id_split = instance_id.split('_');
+		
+		if(instance_id_split === "undefined"){
+			alert("Snap, something went wrong. Please refresh.");
+			instance_id_split[1] == "null";
 		}
 
 		// get the instance id
 		var instance_name = $(this).parent().attr("name");
 
 		var selector = $(this).parent();
-		create_send_json(selector,data_table_name, instance_id, instance_name,  false);
+		create_send_json(selector,data_table_name, instance_id_split[1], instance_name,  false);
+		
+		hide_repeating_instances();
 	});
 	function create_send_json(selector,data_table_name, instance_id, instance_name, is_prefix_required)
 	{
@@ -436,7 +472,7 @@ $(document).ready(function(){
 			}
 			else{
 				//for radio buttons if none is selected
-				if (typeof instance_values[input_name] === 'undefined' && instance_values[input_name] === null){
+				if (typeof instance_values[input_name] === 'undefined' && instance_values[input_name] === null && instance_values[input_name]==''){
 					instance_values[input_name] = input_type+":::null";
 				}
 			}
@@ -446,17 +482,26 @@ $(document).ready(function(){
 
 		});
 		//	console.log(instance_values);
+		
+		
 		// send it to the backend with an ajax call
-		$.ajax({
+		return $.ajax({
 			url : "./repeating_set_read_input",
 			data: instance_values,
 			type: "POST"
-		}).done(function(){
+		});
+		
+		/*
+		.then(function(result){
+
 			//		console.log("done");
 			changePlaceholderValue(data_table_name);
-		}).fail(function(){
+			return result;
+		},function(){
 			alert("The data could not be saved. Please make sure the data entered is correct and try again");
-		});	
+			return -1;
+		});
+		*/
 	}
 	//------------------------------------------------------------------------------//
 	//Function to change the placeholder string for repeating instance input box

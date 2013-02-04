@@ -264,9 +264,11 @@ public class Study_Space {
 
     public static Study_Space[] get_all() {
 	int n_spaces = ALL_SPACES.size();
+	log.info("There are " + n_spaces + " Study Spaces");
 	if (n_spaces < 1) {
 	    Load_Study_Spaces();
 	    n_spaces = ALL_SPACES.size();
+	    log.info("Loaded " + n_spaces + " study spaces");
 	}
 	Study_Space[] result = new Study_Space[n_spaces];
 	Enumeration<Study_Space> et = Study_Space.ALL_SPACES.elements();

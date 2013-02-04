@@ -20,7 +20,7 @@
 	DateFormat f = new SimpleDateFormat("E");
 	String wkday = f.format(today1);
 %>
-<script language="javascript">
+<script>
 	var sid, jid, jstatus;
 	//sid - survey's internal ID
 	//jid - survey ID
@@ -81,7 +81,7 @@
 				return;
 			}
 			admin_info.load_remote(WiseConstants.SURVEY_HEALTH_LOADER,
-				admin_info.study_name);
+					admin_info.study_name);
 			//get the weekday format of today to name the data backup file
 		} catch (Exception e) {
 			//WISE_Application.log_error("WISE ADMIN - TOOL init: ", e);
@@ -254,10 +254,13 @@
 			<tr>
 				<td align="center"><%=id%><br> <br> <b><%=title%></b><br>
 					<br><%=uploaded%><br> <br> (<i><%=status_exp%>
-						Mode</i>)<br>Copy-Paste link for anonymous survey users<br><%=Message
-							.buildInviteUrl(
-									admin_info.myStudySpace.app_urlRoot, null,
-									admin_info.myStudySpace.id, id)%><br></td>
+						Mode</i>)<br>Copy-Paste link for anonymous survey users<br>
+				<a
+					href='<%=Message.buildInviteUrl(
+							admin_info.myStudySpace.app_urlRoot, null,
+							admin_info.myStudySpace.id, id)%>'><%=Message.buildInviteUrl(
+							admin_info.myStudySpace.app_urlRoot, null,
+							admin_info.myStudySpace.id, id)%></a><br></td>
 				<td align="center" colspan=2><%=admin_info.get_user_counts_in_states(id)%>
 				</td>
 				<td align="center">

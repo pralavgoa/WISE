@@ -98,7 +98,9 @@ public class thank_you_generate extends HttpServlet {
 			    + "&img=" + logo + "' border=0 align=middle></td>");
 	    thankyou_html
 		    .append("<td width=695 align=center valign=middle><img src='"
-			    + "imageRender?app="
+			    + WISE_Application.rootURL
+			    + "/WiseShared"
+			    + "/image?study="
 			    + study_space.study_name
 			    + "&img="
 			    + banner

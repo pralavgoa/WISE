@@ -195,11 +195,22 @@ function isblank(s)
 
 
 function check_and_submit(){
+	
+	if($(".save_repeating_item_instance").is(":visible")){
+		var confirmSaveChanges = confirm("Do you want to save the changes you made?");
+		
+		if(confirmSaveChanges == true){
+			$(".save_repeating_item_instance").filter(":visible").each(function(){
+				$(this).addClass("unsaved");
+			});
+		}
+	}
+	
 	var num_unsaved_rpt_sets = $(".unsaved").size();
 	
 	if(num_unsaved_rpt_sets==0){
 		check_and_submit_non_repeat();
-	}else{
+	}else{		
 		//submit unsaved repeating sets
 		$(".unsaved").each(function(){
 			$(this).click();
@@ -207,7 +218,7 @@ function check_and_submit(){
 			if(num_unsaved_rpt_sets==0){
 				setTimeout(function() {
 					$(document).ajaxStop(check_and_submit_non_repeat());
-				}, 500);
+				}, 2000);
 //				$.ajaxStop(function(){$(document).trigger("repeat_sets_saved");});
 				
 			}
