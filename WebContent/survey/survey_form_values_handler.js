@@ -534,12 +534,24 @@ $(document).ready(function(){
 		ajaxStart: function() { 
 			$(this).addClass("loading"); 
 		},
-		// When ajaxStop is fired, rmeove 'loading' from body class
+		// When ajaxStop is fired, remove 'loading' from body class
 		ajaxStop: function() { 
 			$(this).removeClass("loading"); 
 		}    
 	});
 	//==============================================================================//
 
+	$('.repeat_item_name').keyup(function(e){
+		if(e.keyCode == 13)
+		{
+		  $(this).trigger("enterKey");
+		}
+		});
+	
+	$('.repeat_item_name').bind("enterKey",function(e){
+		$(this).parent().find('.add_repeat_instance_name_button').click();
+	});
+	
+	
 	//==============================================================================//
 });//end of document.ready function
