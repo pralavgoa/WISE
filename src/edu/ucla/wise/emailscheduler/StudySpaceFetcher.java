@@ -15,6 +15,8 @@ public class StudySpaceFetcher {
 
     public static List<Study_Space> getStudySpaces(String appName) {
 
+	LOG.info("Fetching study spaces for application " + appName);
+
 	ArrayList<Study_Space> startConfigList = new ArrayList<Study_Space>();
 
 	// start the email sending procedure
@@ -26,7 +28,7 @@ public class StudySpaceFetcher {
 	try {
 	    AdminInfo.check_init(appName);
 	} catch (IOException e1) {
-	    LOG.error(e1);
+	    LOG.error("AdminInfo could not be initialized", e1);
 	}
 
 	Study_Space[] allSpaces;

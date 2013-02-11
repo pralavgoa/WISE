@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 
 import edu.ucla.wise.commons.Data_Bank;
 import edu.ucla.wise.commons.Study_Space;
-import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 
 /**
  * This email thread will spawn action of sending reminders.
@@ -23,8 +22,8 @@ public class EmailScheduler {
     public static final String APPLICATION_NAME = "/WISE";
 
     public static final int DEFAULT_EMAIL_START_TIME = 2;
-    public static final long MILLISECONDS_IN_A_DAY = 86400000;
-    public static final long MILLISECONDS_IN_AN_HOUR = 3600000;
+
+
 
     private static ScheduledExecutorService executor;
 
@@ -36,10 +35,6 @@ public class EmailScheduler {
 		.getStudySpaces(APPLICATION_NAME);
 
 	LOG.info("Found " + studySpaceList.size() + " study spaces");
-
-	LOG.info("Map has "
-		+ StudySpaceParametersProvider.getInstance()
-			.getStudySpaceParametersMap().size() + " Study Spaces");
 
 	executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -69,20 +64,26 @@ public class EmailScheduler {
 	    long initialWaitPeriodInMillis = calculateInitialWaitPeriodInMillis(emailStartHour);
 
 	    LOG.info("Emailer for " + studySpace.id + " will start in "
-		    + initialWaitPeriodInMillis + " milliseconds");
+		    + WISE_TimeUtils
+			    .convertMillisToHumanReadableForm(initialWaitPeriodInMillis));
 	    executor.scheduleAtFixedRate(new Runnable() {
 
 		@Override
 		public void run() {
 		    LOG.info("Mail sender for " + studySpace.id
 			    + " has started");
-		    // EmailScheduler.sendEmailsInStudySpace(studySpace);
+
+		    Data_Bank db = studySpace.db;
+		    LOG.info("Study_Space " + studySpace.study_name
+			    + " CONNECTING to database: " + db.dbdata);
+		    LOG.info(db.send_reminders());
+
 		    LOG.info("Mail sender for " + studySpace.id
 			    + " has finished");
 
 		}
 
-	    }, initialWaitPeriodInMillis, 1, TimeUnit.DAYS);
+	    }, 0, WISE_TimeUtils.MILLISECONDS_IN_A_DAY, TimeUnit.MILLISECONDS);
 	}
     }
 
@@ -100,7 +101,8 @@ public class EmailScheduler {
 
 	LOG.info("Milliseconds at midnight: " + millisAtMidnight);
 
-	long emailStartTimeMillis = emailStartTime * MILLISECONDS_IN_AN_HOUR;
+	long emailStartTimeMillis = emailStartTime
+		* WISE_TimeUtils.MILLISECONDS_IN_AN_HOUR;
 
 	LOG.info("Email startTime in millis " + emailStartTimeMillis);
 
@@ -112,16 +114,13 @@ public class EmailScheduler {
 	if (emailStartTimeMillis + millisAtMidnight > currentTimeMillis) {
 	    return emailStartTimeMillis + millisAtMidnight - currentTimeMillis;
 	} else {
-	    return MILLISECONDS_IN_A_DAY
+	    return WISE_TimeUtils.MILLISECONDS_IN_A_DAY
 		    - (currentTimeMillis - emailStartTimeMillis - millisAtMidnight);
 	}
     }
 
     public static boolean sendEmailsInStudySpace(Study_Space ss) {
-	Data_Bank db = ss.db;
-	LOG.info("\nStudy_Space " + ss.study_name + " CONNECTING to database: "
-		+ db.dbdata);
-	LOG.info(db.send_reminders());
+
 	return true;
     }
 
