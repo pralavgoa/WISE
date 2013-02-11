@@ -1060,8 +1060,7 @@ public class Data_Bank {
 		}// if
 	    }// while
 	} catch (Exception e) {
-	    WISE_Application.log_error(
-		    "Pending initial invite ERROR: " + e.toString(), null);
+	    log.error("Pending initial invite ERROR:", e);
 	} finally {
 	    if (conn != null) {
 		try {

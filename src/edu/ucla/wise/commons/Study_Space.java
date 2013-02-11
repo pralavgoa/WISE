@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Strings;
+
 import edu.ucla.wise.initializer.StudySpaceParametersProvider;
 import edu.ucla.wise.studyspace.parameters.StudySpaceParameters;
 
@@ -94,7 +96,7 @@ public class Study_Space {
 	    String spaceName = allSpaceParamsItr.next();
 	    SPACE_names.put(allSpaceParams.get(spaceName).getId(), spaceName);
 	}
-	WISE_Application.log_info("study space setup complete");
+	log.info("study space setup complete");
 	/*
 	Enumeration enu = WISE_Application.sharedProps.getKeys();
 	while (enu.hasMoreElements()) {
@@ -133,7 +135,8 @@ public class Study_Space {
 
     /** Load all the Study_Space spaces applicable for the given local server */
     public static String Load_Study_Spaces() {
-	String studyID = null, study_name = null, resultstr = "";
+	String spaceName = "";
+	String resultstr = "";
 	try {
 	    if (SPACE_names == null || SPACE_names.size() < 1)
 		return "Error: No Study Spaces found in props file";
@@ -141,12 +144,15 @@ public class Study_Space {
 	    Map<String, StudySpaceParameters> allSpaceParams = StudySpaceParametersProvider
 		    .getInstance().getStudySpaceParametersMap();
 
+	    log.info("There are " + allSpaceParams.size()
+		    + " StudySpaceParameters objects");
+
 	    Iterator<String> allSpaceNameItr = allSpaceParams.keySet()
 		    .iterator();
 
 	    while (allSpaceNameItr.hasNext()) {
 
-		String spaceName = allSpaceNameItr.next();
+		spaceName = allSpaceNameItr.next();
 		
 		String studySvr = allSpaceParams.get(spaceName).getServerUrl();
 		String studyApp = allSpaceParams.get(spaceName)
@@ -155,9 +161,9 @@ public class Study_Space {
 		if (studySvr.equalsIgnoreCase(WISE_Application.rootURL)
 			&& studyApp
 				.equalsIgnoreCase(Surveyor_Application.ApplicationName)
-			&& study_name != null && !study_name.equals("")) {
+			&& !Strings.isNullOrEmpty(spaceName)) {
 		    // create new Study_Space
-		    Study_Space ss = new Study_Space(study_name);
+		    Study_Space ss = new Study_Space(spaceName);
 		    // put Study_Space in ALL_SPACES
 		    ALL_SPACES.put(ss.id, ss);
 		    resultstr += "Loaded Study Space: " + ss.id + " for user "
@@ -183,8 +189,7 @@ public class Study_Space {
 	     * " <BR>\n"; } }
 	     */
 	} catch (Exception e) {
-	    WISE_Application.log_error("Load Study Spaces Error for ID "
-		    + studyID + ", name " + study_name + "\n" + e, e);
+	    log.error("Load Study Spaces Error for  name " + spaceName, e);
 	}
 	return resultstr;
     }
@@ -205,6 +210,9 @@ public class Study_Space {
 		.getInstance().getStudySpaceParameters(studyName);
 
 	try {
+
+	    db = new Data_Bank(this); // one DB per SS
+
 	    // Construct instance variables for this particular study space
 	    id = spaceParams.getId();
 	    // 20dec id = WISE_Application.sharedProps.getString(studyName +
@@ -254,7 +262,6 @@ public class Study_Space {
 	    load_preface();
 	    // create the message sender
 	    surveys = new Hashtable<String, Survey>();
-	    db = new Data_Bank(this); // one DB per SS
 	    db.readSurveys();
 	} catch (Exception e) {
 	    WISE_Application.log_error("Study Space create failure: " + id
@@ -374,7 +381,7 @@ public class Study_Space {
     public boolean load_preface() {
 	String resourceStream = CommonUtils.getAbsolutePath(prefacePath);
 	if (resourceStream != null) {
-	    preface = new Preface(prefacePath);
+	    preface = new Preface(this, "preface.xml");
 	    preface.setHrefs(servlet_urlRoot, image_url);
 	    return true;
 	}

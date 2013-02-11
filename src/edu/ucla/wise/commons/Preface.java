@@ -1,14 +1,20 @@
 package edu.ucla.wise.commons;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * This class is a preface object and contains information about a specific
@@ -16,27 +22,49 @@ import org.w3c.dom.NodeList;
  */
 
 public class Preface {
+
+    private static Logger log = Logger.getLogger(Preface.class);
+
     /** Instance Variables */
     public String project_name = "";
     public String studySpaceName = "";
 
-    public Hashtable welcome_pages = new Hashtable();
-    public Hashtable consent_forms = new Hashtable();
-    public Hashtable irb_sets = new Hashtable();
-    private final Hashtable all_message_sequences = new Hashtable();
-    private final Hashtable all_messages = new Hashtable();
-    private final Hashtable messageSequences_byMsgID = new Hashtable();
+    public Hashtable<String, Welcome_Page> welcome_pages = new Hashtable<String, Welcome_Page>();
+    public Hashtable<String, Consent_Form> consent_forms = new Hashtable<String, Consent_Form>();
+    public Hashtable<String, IRB_Set> irb_sets = new Hashtable<String, IRB_Set>();
+    private final Hashtable<String, Message_Sequence> all_message_sequences = new Hashtable<String, Message_Sequence>();
+    private final Hashtable<String, Message> all_messages = new Hashtable<String, Message>();
+    private final Hashtable<String, Message_Sequence> messageSequences_byMsgID = new Hashtable<String, Message_Sequence>();
     public Thankyou_Page thankyou_page;
 
-    // public Study_Space study_space;
+    public Study_Space study_space;
 
     /** constructor - create a preface by parsing the xml file */
-    public Preface(String preface_file_name) {
+    public Preface(Study_Space study_space, String prefaceFileName) {
+
+	studySpaceName = study_space.study_name;
+	this.study_space = study_space;
+
 	try {
 	    // Directly read the preface file
+	    /*
+	     * Document doc = DocumentBuilderFactory.newInstance()
+	     * .newDocumentBuilder()
+	     * .parse(CommonUtils.loadResource(preface_file_name));
+	     */
+	    log.info("Loading preface file " + prefaceFileName + " for "
+		    + studySpaceName);
+
+	    InputStream prefaceFileInputStream = study_space.db
+		    .getXmlFileFromDatabase(prefaceFileName, studySpaceName);
+
+	    if (prefaceFileInputStream == null) {
+		throw new FileNotFoundException();
+	    }
+
 	    Document doc = DocumentBuilderFactory.newInstance()
-		    .newDocumentBuilder()
-		    .parse(CommonUtils.loadResource(preface_file_name));
+		    .newDocumentBuilder().parse(prefaceFileInputStream);
+
 	    NodeList root_node = doc.getElementsByTagName("Preface");
 	    for (int k = 0; k < root_node.getLength(); k++) {
 		Node nd = root_node.item(k).getAttributes()
@@ -91,24 +119,28 @@ public class Preface {
 
 	    // after reading in & creating all message objects, resolve the
 	    // references among them
-	    Enumeration e = all_messages.elements();
+	    Enumeration<Message> e = all_messages.elements();
 	    while (e.hasMoreElements()) {
-		Message msg = (Message) e.nextElement();
+		Message msg = e.nextElement();
 		msg.resolveRef(this);
 	    }
-	} catch (Exception e) {
-	    WISE_Application.log_error(
-		    "WISE - PREFACE load error: " + e.toString(), e);
-	    return;
+	} catch (FileNotFoundException e) {
+	    log.error("Preface file not found", e);
+	} catch (SAXException e) {
+	    log.error("Preface file could not be loaded", e);
+	} catch (IOException e) {
+	    log.error("Preface file IO exception", e);
+	} catch (ParserConfigurationException e) {
+	    log.error("Preface file Parser config exception", e);
 	}
     }
 
     // pass down to each message the appropriately localized URLs (eg for
     // images) from StudySpace (add more args here as needed)
     public void setHrefs(String srvltPath, String imgPath) {
-	Enumeration e = all_messages.elements();
+	Enumeration<Message> e = all_messages.elements();
 	while (e.hasMoreElements()) {
-	    Message msg = (Message) e.nextElement();
+	    Message msg = e.nextElement();
 	    msg.setHrefs(srvltPath, imgPath);
 	}
     }
@@ -117,7 +149,7 @@ public class Preface {
     public Welcome_Page get_welcome_page(String wp_id) {
 	Welcome_Page wp = null;
 	if (welcome_pages != null)
-	    wp = (Welcome_Page) welcome_pages.get(wp_id);
+	    wp = welcome_pages.get(wp_id);
 	return wp;
     }
 
@@ -137,9 +169,9 @@ public class Preface {
 	    String irbID) {
 	Welcome_Page wp = null; // returns null
 	if (welcome_pages != null) {
-	    Enumeration e = welcome_pages.elements();
+	    Enumeration<Welcome_Page> e = welcome_pages.elements();
 	    while (e.hasMoreElements()) {
-		wp = (Welcome_Page) e.nextElement();
+		wp = e.nextElement();
 		if (wp.survey_id.equalsIgnoreCase(surveyID))
 		    if (wp.irb_id.equalsIgnoreCase(irbID))
 			return wp;
@@ -152,7 +184,7 @@ public class Preface {
     public IRB_Set get_irb_set(String irb_id) {
 	IRB_Set irb = null;
 	if (irb_sets != null)
-	    irb = (IRB_Set) irb_sets.get(irb_id);
+	    irb = irb_sets.get(irb_id);
 	return irb;
     }
 
@@ -160,7 +192,7 @@ public class Preface {
     public Consent_Form get_consent_form(String cf_id) {
 	Consent_Form cf = null;
 	if (consent_forms != null)
-	    cf = (Consent_Form) consent_forms.get(cf_id);
+	    cf = consent_forms.get(cf_id);
 	return cf;
     }
 
@@ -169,9 +201,9 @@ public class Preface {
 	    String irbID) {
 	Consent_Form cf = null;
 	if (consent_forms != null) {
-	    Enumeration e = consent_forms.elements();
+	    Enumeration<Consent_Form> e = consent_forms.elements();
 	    while (e.hasMoreElements()) {
-		cf = (Consent_Form) e.nextElement();
+		cf = e.nextElement();
 		if (cf.survey_id.equalsIgnoreCase(surveyID))
 		    if (cf.irb_id.equalsIgnoreCase(irbID))
 			return cf;
@@ -184,12 +216,12 @@ public class Preface {
     public Message_Sequence get_message_sequence(String seq_id) {
 	if (seq_id == null)
 	    return null;
-	return (Message_Sequence) all_message_sequences.get(seq_id);
+	return all_message_sequences.get(seq_id);
     }
 
     /** return the message sequence for a given Message ID */
     public Message_Sequence get_messageSequence_4msgID(String msg_id) {
-	return (Message_Sequence) messageSequences_byMsgID.get(msg_id);
+	return messageSequences_byMsgID.get(msg_id);
     }
 
     // extract out the message sequence matching a survey, irb combo --
@@ -216,21 +248,21 @@ public class Preface {
     // extract array of all message sequences for a survey */
     public Message_Sequence[] get_message_sequences(String survey_id) {
 	Message_Sequence[] msg_seqs = new Message_Sequence[0];// return a
-							      // 0-length
-							      // array as
-							      // default
-	ArrayList tempList = new ArrayList();
+	// 0-length
+	// array as
+	// default
+	ArrayList<Message_Sequence> tempList = new ArrayList<Message_Sequence>();
 	// get the message sequence from hashtable
-	for (Enumeration e = all_message_sequences.elements(); e
+	for (Enumeration<Message_Sequence> e = all_message_sequences.elements(); e
 		.hasMoreElements();) {
-	    Message_Sequence msg_seq = (Message_Sequence) e.nextElement();
+	    Message_Sequence msg_seq = e.nextElement();
 
 	    if (msg_seq.survey_id.indexOf(survey_id) != -1)
 		tempList.add(msg_seq);
 	}
 	if (tempList.size() > 0)
-	    msg_seqs = (Message_Sequence[]) tempList
-		    .toArray(new Message_Sequence[tempList.size()]);
+	    msg_seqs = tempList
+.toArray(new Message_Sequence[tempList.size()]);
 	return msg_seqs;
     }
 
@@ -250,21 +282,21 @@ public class Preface {
 	// the following is safe because all_messages guaranteed initialized to
 	// hashtable
 	// Bad XML IDref will return null.
-	return (Message) all_messages.get(msg_id);
+	return all_messages.get(msg_id);
     }
 
     /** return all initial invitation messages with a given ID */
     public Message[] get_all_initial_messages_forSurveyID(String svy_id) {
-	ArrayList foundMsgs = new ArrayList();
-	for (Enumeration e = all_message_sequences.elements(); e
+	ArrayList<Message> foundMsgs = new ArrayList<Message>();
+	for (Enumeration<Message_Sequence> e = all_message_sequences.elements(); e
 		.hasMoreElements();) {
-	    Message_Sequence msg_sequence = (Message_Sequence) e.nextElement();
+	    Message_Sequence msg_sequence = e.nextElement();
 	    // search by the survey ID
 	    if (msg_sequence.survey_id.matches(svy_id)) // try using survey ID
-							// as a regexp
+		// as a regexp
 		foundMsgs.add(msg_sequence.get_type_message("invite"));
 	}
-	return (Message[]) foundMsgs.toArray(new Message[foundMsgs.size()]);
+	return foundMsgs.toArray(new Message[foundMsgs.size()]);
     }
 
     /**
@@ -281,9 +313,9 @@ public class Preface {
     public String toString() {
 	String resp = "<b>Preface: </b><br>Message sequences<br>";
 	Message_Sequence msgsq;
-	Enumeration e1 = all_message_sequences.elements();
+	Enumeration<Message_Sequence> e1 = all_message_sequences.elements();
 	while (e1.hasMoreElements()) {
-	    msgsq = (Message_Sequence) e1.nextElement();
+	    msgsq = e1.nextElement();
 	    resp += msgsq.toString();
 	}
 	resp += "<B>Total message count: " + all_messages.size() + "</b>";

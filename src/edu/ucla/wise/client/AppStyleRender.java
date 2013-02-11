@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 
 import edu.ucla.wise.commons.Data_Bank;
 import edu.ucla.wise.commons.Study_Space;
+import edu.ucla.wise.commons.WISE_Application;
 
 /**
  * processes the results of a question and determines where to go next
@@ -35,17 +36,16 @@ public class AppStyleRender extends HttpServlet {
 	String css_name = request.getParameter("css");
 	String app_name = request.getParameter("app");
 
-	log.info("Fetching css for " + app_name + " for file " + css_name);
-
 	if (Strings.isNullOrEmpty(app_name)) {
-	    log.error("App name is null or empty");
+
+	    response.sendRedirect(WISE_Application.rootURL
+		    + "/WiseShared/style?style=" + css_name);
 	    return;
 	}
 
 	HttpSession session = request.getSession(true);
 	// if session is new, then show the session expired info
 	if (session.isNew()) {
-	    log.info("Session is new");
 	    return;
 	}
 
