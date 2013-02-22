@@ -83,7 +83,9 @@ public class EmailScheduler {
 
 		}
 
-	    }, 0, WISE_TimeUtils.MILLISECONDS_IN_A_DAY, TimeUnit.MILLISECONDS);
+		    }, initialWaitPeriodInMillis,
+		    WISE_TimeUtils.MILLISECONDS_IN_A_DAY,
+		    TimeUnit.MILLISECONDS);
 	}
     }
 

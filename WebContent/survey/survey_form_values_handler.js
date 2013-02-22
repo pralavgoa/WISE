@@ -32,7 +32,7 @@ $(document).ready(function(){
 		var milliseconds = new Date().getTime();
 		//get the JSON object
 		$.getJSON("./repeating_item_io?repeat_table_name="+item_set_name+"&"+"time="+milliseconds, function(json_response) {
-
+		
 			var instance_number = 0;
 			for(instance in json_response){
 				instance_number++;
@@ -544,13 +544,24 @@ $(document).ready(function(){
 	$('.repeat_item_name').keyup(function(e){
 		if(e.keyCode == 13)
 		{
+		  e.preventDefault();
 		  $(this).trigger("enterKey");
 		}
+		return false;
 		});
 	
 	$('.repeat_item_name').bind("enterKey",function(e){
 		$(this).parent().find('.add_repeat_instance_name_button').click();
+		return false;
 	});
+	
+	function checkEnter(e){
+		 e = e || event;
+		 var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
+		 return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
+		}
+	
+	document.querySelector('form').onkeypress = checkEnter;
 	
 	
 	//==============================================================================//

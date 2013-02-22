@@ -144,10 +144,8 @@ public class WISE_Application {
 	email_from = sharedProps.getString("wise.email.from");
 	alert_email = sharedProps.getString("alert.email");
 	email_host = sharedProps.getString("email.host");
-	mail_username = sharedProps.getString(wise_defaultAcct_propID
-		+ mailUserName_ext);
-	mail_password = sharedProps.getString(wise_defaultAcct_propID
-		+ mailPasswd_ext);
+	mail_username = sharedProps.getString("SMTP_AUTH_USER");
+	mail_password = sharedProps.getString("SMTP_AUTH_PASSWORD");
 	admin_server = sharedProps.getString("admin.server");
 	xml_loc = sharedProps.getString("xml_root.path");
 	// TODO: confirm

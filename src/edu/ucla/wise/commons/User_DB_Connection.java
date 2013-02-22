@@ -444,6 +444,7 @@ public class User_DB_Connection {
 			javascript_array_response
 				.append("\"" + col_name + "\"");
 			javascript_array_response.append(":");
+			ans = ans.replaceAll("(\r\n|\n\r|\r|\n)", "\\\\n");
 			javascript_array_response.append("\"" + ans + "\"");
 		    } else {// dont add;
 		    }
